@@ -1,12 +1,12 @@
 import app from "./app.js";
 import connectDB from "./config/db.js";
-import {env} from "./config/env.js";
+import { env } from "./config/env.js";
 
 async function bootstrap(): Promise<void> {
   try {
     await connectDB();
 
-    const server = app.listen(env.PORT, () => {
+    app.listen(env.PORT, () => {
       console.log(`Server running on http://localhost:${env.PORT}`);
     });
   } catch (err) {
