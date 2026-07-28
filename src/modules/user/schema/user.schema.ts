@@ -29,7 +29,6 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-// Virtual: يجلب عناوين المستخدم من مجموعة Address
 userSchema.virtual("addresses", {
   ref: "Address",
   localField: "_id",
