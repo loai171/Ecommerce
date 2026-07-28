@@ -6,8 +6,11 @@ import {
   existingId,
   updateUserValidator,
 } from "./user.validator.js";
+import { createAddressValidator } from "./address.validator.js";
 
 const router: Router = Router();
+
+//  User Routes
 
 router.post("/", validate(createUserValidator), userController.create);
 
@@ -22,6 +25,15 @@ router.patch(
   validate(existingId),
   validate(updateUserValidator),
   userController.update,
+);
+
+//  Address Routes
+
+router.post(
+  "/:id/addresses",
+  validate(existingId),
+  validate(createAddressValidator),
+  userController.createAddress,
 );
 
 export const userRoutes = router;
