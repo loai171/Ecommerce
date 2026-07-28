@@ -7,63 +7,73 @@ import { successResponse } from "../../utils/response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import type { UpdateUserDTO } from "./dto/update-user.dto.js";
 import type { CreateUserDTO } from "./dto/create-user.dto.js";
+import { UserResponseDTO } from "./dto/user-respones.dto.js";
 
 export const userController = {
-  create: asyncHandler(async (req: Request, res: Response) => {
-    // for sinataize
-    const input = matchedData(req) as CreateUserDTO;
-    const user = await userService.create(input);
+  create: asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      // for sinataize
+      const input: CreateUserDTO = matchedData(req) as CreateUserDTO;
+      const user: UserResponseDTO = await userService.create(input);
 
-    return successResponse(
-      res,
-      user,
-      "User created successfully",
-      StatusCodes.CREATED,
-    );
-  }),
+      return successResponse(
+        res,
+        user,
+        "User created successfully",
+        StatusCodes.CREATED,
+      );
+    },
+  ),
 
-  list: asyncHandler(async (_req: Request, res: Response) => {
-    const users = await userService.getAll();
-    console.log(users);
-    return successResponse(
-      res,
-      users,
-      "Users returend successfully",
-      StatusCodes.OK,
-    );
-  }),
+  list: asyncHandler(
+    async (_req: Request, res: Response): Promise<Response> => {
+      const users: UserResponseDTO[] = await userService.getAll();
+      return successResponse(
+        res,
+        users,
+        "Users returend successfully",
+        StatusCodes.OK,
+      );
+    },
+  ),
 
-  getById: asyncHandler(async (req: Request, res: Response) => {
-    const id = req.params["id"] as string;
-    const user = await userService.getById(id);
-    return successResponse(
-      res,
-      user,
-      "User returend successfully",
-      StatusCodes.OK,
-    );
-  }),
-  remove: asyncHandler(async (req: Request, res: Response) => {
-    const id = req.params["id"] as string;
-    await userService.remove(id);
-    return successResponse(
-      res,
-      null,
-      "User removed successfully",
-      StatusCodes.OK,
-    );
-  }),
+  getById: asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const id: string = req.params["id"] as string;
+      const user: UserResponseDTO = await userService.getById(id);
+      return successResponse(
+        res,
+        user,
+        "User returend successfully",
+        StatusCodes.OK,
+      );
+    },
+  ),
+  remove: asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const id: string = req.params["id"] as string;
+      await userService.remove(id);
+      return successResponse(
+        res,
+        null,
+        "User removed successfully",
+        StatusCodes.OK,
+      );
+    },
+  ),
 
-  update: asyncHandler(async (req: Request, res: Response) => {
-    const id = req.params["id"] as string;
-    const input = matchedData(req) as UpdateUserDTO;
+  update: asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const id: string = req.params["id"] as string;
+      const input: UpdateUserDTO = matchedData(req) as UpdateUserDTO;
 
-    const user = await userService.update(id, input);
-    return successResponse(
-      res,
-      user,
-      "User updated successfully",
-      StatusCodes.OK,
-    );
-  }),
+      const user = await userService.update(id, input);
+      return successResponse(
+        res,
+        user,
+        "User updated successfully",
+        StatusCodes.OK,
+      );
+    },
+  ),
 };

@@ -16,8 +16,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    // for security
-    select: false,
   },
 
   age: Number,
@@ -32,6 +30,9 @@ userSchema.pre("save", async function () {
 
   this.password = await hashingPassword(this.password);
 });
+
+export type UserType = mongoose.InferSchemaType<typeof userSchema>;
+export type UserDocument = mongoose.HydratedDocument<UserType>;
 
 const User = mongoose.models?.User || mongoose.model("User", userSchema);
 

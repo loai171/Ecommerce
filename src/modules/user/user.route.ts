@@ -7,7 +7,7 @@ import {
   updateUserValidator,
 } from "./user.validator.js";
 
-const router = Router();
+const router: Router = Router();
 
 router.post("/", validate(createUserValidator), userController.create);
 
@@ -17,6 +17,11 @@ router.get("/:id", validate(existingId), userController.getById);
 
 router.delete("/:id", validate(existingId), userController.remove);
 
-router.patch("/:id", validate(existingId),validate(updateUserValidator), userController.update);
+router.patch(
+  "/:id",
+  validate(existingId),
+  validate(updateUserValidator),
+  userController.update,
+);
 
 export const userRoutes = router;

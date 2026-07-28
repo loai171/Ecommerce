@@ -8,6 +8,7 @@ export function successResponse(
   message = "Success",
   statusCode = StatusCodes.OK
 ) {
+  
   return res.status(statusCode).json({
     success: true,
     message,

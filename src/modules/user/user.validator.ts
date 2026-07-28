@@ -83,7 +83,7 @@ export const updateUserValidator = [
     .notEmpty()
     .withMessage("Old password is required")
     .custom(async (oldPassword, { req }) => {
-      const user = await userRepository.findByIdWithPassword(req.params?.id);
+      const user = await userRepository.findById(req.params?.id);
 
       if (!user) {
         throw AppError.notFound("User not found");

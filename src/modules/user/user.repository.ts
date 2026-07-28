@@ -1,48 +1,47 @@
-import { sanitizePassword } from "../../utils/helpers.js";
-import { CreateUserDTO } from "./dto/create-user.dto.js";
-import { UpdateUserDTO } from "./dto/update-user.dto.js";
-import User from "./user.schema.js";
+import type { CreateUserDTO } from "./dto/create-user.dto.js";
+import type { UpdateUserDTO } from "./dto/update-user.dto.js";
+import User, { UserDocument } from "./user.schema.js";
 
 export const userRepository = {
-  async create(data: CreateUserDTO) {
-    const user = await User.create(data);
-    return sanitizePassword(user);
-  },
-  async findByEmail(email: string) {
-    const user = await User.findOne({ email });
-    return sanitizePassword(user);
-  },
-  async findByEmailWithPassword(email: string) {
-    const user = await User.findOne({ email }).select("+password");
+  async create(data: CreateUserDTO): Promise<UserDocument | null> {
+    const user: UserDocument = await User.create(data);
     return user;
   },
-  async findById(_id: string) {
-    const user = await User.findById({ _id });
-    return sanitizePassword(user);
-  },
-  async findByIdWithPassword(_id: string) {
-    const user = await User.findById({ _id }).select("+password");
+  async findByEmail(email: string): Promise<UserDocument | null> {
+    const user: UserDocument | null = await User.findOne({ email });
     return user;
   },
-  async remove(_id: string) {
-    const user = await User.findByIdAndDelete(_id);
 
-    return sanitizePassword(user);
+  async findById(_id: string): Promise<UserDocument | null> {
+    const user: UserDocument | null = await User.findById(_id);
+    return user;
   },
-  async update(_id: string, input: UpdateUserDTO) {
-    const user = await this.findByIdWithPassword(_id);
+  async remove(_id: string): Promise<UserDocument | null> {
+    const user: UserDocument | null = await User.findByIdAndDelete(_id);
+
+    return user;
+  },
+  async update(
+    _id: string,
+    input: UpdateUserDTO,
+  ): Promise<UserDocument | null> {
+    const user: UserDocument | null = await this.findById(_id);
+
     const { oldPassword, newPassword, confirmPassword, ...rest } = input;
-    rest["password"] = newPassword || user.password;
 
     Object.assign(user, rest);
 
+    if (newPassword) {
+      user.password = newPassword;
+    }
+
     await user.save();
 
-    return sanitizePassword(user);
+    return user;
   },
-  async list() {
-    const users = await User.find({});
+  async list(): Promise<UserDocument[]> {
+    const users: UserDocument[] = await User.find({});
 
-    return users.map((user) => sanitizePassword(user));
+    return users;
   },
 };
