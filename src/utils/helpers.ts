@@ -13,3 +13,11 @@ export async function matchPassword(
 ): Promise<boolean> {
   return await bcrypt.compare(password, hashedPassword);
 }
+
+export const sanitizePassword = (data: any) => {
+  const obj = data.toObject();
+
+  delete obj.password;
+
+  return obj;
+};

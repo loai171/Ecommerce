@@ -1,3 +1,4 @@
+import { sanitizePassword } from "../../utils/helpers.js";
 import { CreateUserDTO } from "./dto/create-user.dto.js";
 import { UpdateUserDTO } from "./dto/update-user.dto.js";
 import User from "./user.schema.js";
@@ -5,8 +6,7 @@ import User from "./user.schema.js";
 export const userRepository = {
   async create(data: CreateUserDTO) {
     const user = await User.create(data);
-    const { password, ...rest } = user.toObject();
-    return rest;
+    return sanitizePassword(user);
   },
   async findByEmail(email: string) {
     const user = await User.findOne({ email });
@@ -37,7 +37,7 @@ export const userRepository = {
 
     await user.save();
 
-    return user;
+    return sanitizePassword(user);
   },
   async list() {
     const users = await User.find({});
