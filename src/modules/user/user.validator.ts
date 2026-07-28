@@ -5,6 +5,7 @@ import { matchPassword } from "../../utils/helpers.js";
 
 export const createUserValidator = [
   body("name")
+    .optional()
     .notEmpty()
     .withMessage("Name is required")
     .isString()

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
+import crypto from "node:crypto";
 import { hashingPassword } from "../../utils/helpers.js";
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
   },
 
   email: {
@@ -29,6 +29,14 @@ userSchema.pre("save", async function () {
   }
 
   this.password = await hashingPassword(this.password);
+});
+
+userSchema.pre("save", async function () {
+  if (this.isNew && !this.name) {
+    const randomName = crypto.randomBytes(6).toString("hex");
+
+    this.name = randomName;
+  }
 });
 
 export type UserType = mongoose.InferSchemaType<typeof userSchema>;

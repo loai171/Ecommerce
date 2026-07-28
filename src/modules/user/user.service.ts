@@ -6,7 +6,7 @@ import { userRepository } from "./user.repository.js";
 import type { UserDocument } from "./user.schema.js";
 
 export const userService = {
-  async create(input: CreateUserDTO): Promise<UserResponseDTO> {
+  async create(input: CreateUserDTO): Promise<UserResponseDTO | null> {
     const user: UserDocument = await userRepository.create(input);
 
     return sanitizePassword(user);
