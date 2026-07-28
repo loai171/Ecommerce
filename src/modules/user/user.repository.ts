@@ -3,7 +3,7 @@ import type { UpdateUserDTO } from "./dto/update-user.dto.js";
 import User, { UserDocument } from "./user.schema.js";
 
 export const userRepository = {
-  async create(data: CreateUserDTO): Promise<UserDocument | null> {
+  async create(data: CreateUserDTO): Promise<UserDocument> {
     const user: UserDocument = await User.create(data);
     return user;
   },
@@ -26,6 +26,9 @@ export const userRepository = {
     input: UpdateUserDTO,
   ): Promise<UserDocument | null> {
     const user: UserDocument | null = await this.findById(_id);
+    if (!user) {
+      return null;
+    }
 
     const { oldPassword, newPassword, confirmPassword, ...rest } = input;
 

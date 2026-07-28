@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { env } from "../config/env.js";
 import { UserDocument } from "../modules/user/user.schema.js";
-import { UserResponseDTO } from "../modules/user/dto/user-respones.dto.js";
+import { UserResponseDTO } from "../modules/user/dto/user-response.dto.js";
 
 export async function hashingPassword(password: string): Promise<string> {
   const hashedPassword = await bcrypt.hash(password, env.SALT_ROUNDS);
@@ -15,6 +15,8 @@ export async function matchPassword(
 ): Promise<boolean> {
   return await bcrypt.compare(password, hashedPassword);
 }
+
+
 export function sanitizePassword(
   user: UserDocument | null,
 ): UserResponseDTO | null {
@@ -22,7 +24,11 @@ export function sanitizePassword(
     return null;
   }
 
-  const { password, ...safeUser } = user.toObject();
+  const obj = user.toObject();
+  const { password, _id, ...safeUser } = obj;
 
-  return safeUser;
+  return {
+    _id: _id.toString(),
+    ...safeUser,
+  };
 }

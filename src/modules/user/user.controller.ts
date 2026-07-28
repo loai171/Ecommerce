@@ -5,14 +5,15 @@ import { StatusCodes } from "http-status-codes";
 import { userService } from "./user.service.js";
 import { successResponse } from "../../utils/response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
+import { AppError } from "../../utils/AppError.js";
 import type { UpdateUserDTO } from "./dto/update-user.dto.js";
 import type { CreateUserDTO } from "./dto/create-user.dto.js";
-import { UserResponseDTO } from "./dto/user-respones.dto.js";
+import type { UserResponseDTO } from "./dto/user-response.dto.js";
 
 export const userController = {
   create: asyncHandler(
     async (req: Request, res: Response): Promise<Response> => {
-      // for sinataize
+      // for sanitize
       const input: CreateUserDTO = matchedData(req) as CreateUserDTO;
       const user: UserResponseDTO = await userService.create(input);
 
@@ -31,7 +32,7 @@ export const userController = {
       return successResponse(
         res,
         users,
-        "Users returend successfully",
+        "Users returned successfully",
         StatusCodes.OK,
       );
     },
@@ -40,19 +41,28 @@ export const userController = {
   getById: asyncHandler(
     async (req: Request, res: Response): Promise<Response> => {
       const id: string = req.params["id"] as string;
-      const user: UserResponseDTO = await userService.getById(id);
+      const user = await userService.getById(id);
+      if (!user) {
+        throw AppError.notFound("User not found");
+      }
+
       return successResponse(
         res,
         user,
-        "User returend successfully",
+        "User returned successfully",
         StatusCodes.OK,
       );
     },
   ),
+
   remove: asyncHandler(
     async (req: Request, res: Response): Promise<Response> => {
       const id: string = req.params["id"] as string;
-      await userService.remove(id);
+      const user = await userService.remove(id);
+      if (!user) {
+        throw AppError.notFound("User not found");
+      }
+
       return successResponse(
         res,
         null,
@@ -68,6 +78,10 @@ export const userController = {
       const input: UpdateUserDTO = matchedData(req) as UpdateUserDTO;
 
       const user = await userService.update(id, input);
+      if (!user) {
+        throw AppError.notFound("User not found");
+      }
+
       return successResponse(
         res,
         user,
