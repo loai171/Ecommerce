@@ -1,5 +1,5 @@
 import { body, param } from "express-validator";
-import { userRepository } from "./user.repository.js";
+import { userRepository } from "./repository/user.repository.js";
 import { AppError } from "../../utils/AppError.js";
 import { matchPassword } from "../../utils/helpers.js";
 

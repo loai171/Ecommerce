@@ -1,26 +1,39 @@
 import mongoose from "mongoose";
 import crypto from "node:crypto";
-import { hashingPassword } from "../../utils/helpers.js";
+import { hashingPassword } from "../../../utils/helpers.js";
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+    },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    password: {
+      type: String,
+      required: true,
+    },
+
+    age: Number,
+
+    file: String,
   },
-
-  email: {
-    type: String,
-    required: true,
-    unique: true,
+  {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
   },
+);
 
-  password: {
-    type: String,
-    required: true,
-  },
-
-  age: Number,
-
-  file: String,
+// Virtual: يجلب عناوين المستخدم من مجموعة Address
+userSchema.virtual("addresses", {
+  ref: "Address",
+  localField: "_id",
+  foreignField: "user",
 });
 
 userSchema.pre("save", async function () {
