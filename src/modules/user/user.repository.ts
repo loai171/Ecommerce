@@ -10,23 +10,24 @@ export const userRepository = {
   },
   async findByEmail(email: string) {
     const user = await User.findOne({ email });
-    return user;
+    return sanitizePassword(user);
   },
   async findByEmailWithPassword(email: string) {
     const user = await User.findOne({ email }).select("+password");
     return user;
   },
   async findById(_id: string) {
-    const user = await User.findOne({ _id });
-    return user;
+    const user = await User.findById({ _id });
+    return sanitizePassword(user);
   },
   async findByIdWithPassword(_id: string) {
-    const user = await User.findOne({ _id }).select("+password");
+    const user = await User.findById({ _id }).select("+password");
     return user;
   },
   async remove(_id: string) {
-    const user = await User.deleteOne({ _id });
-    return user;
+    const user = await User.findByIdAndDelete(_id);
+
+    return sanitizePassword(user);
   },
   async update(_id: string, input: UpdateUserDTO) {
     const user = await this.findByIdWithPassword(_id);
@@ -41,6 +42,7 @@ export const userRepository = {
   },
   async list() {
     const users = await User.find({});
-    return users;
+
+    return users.map((user) => sanitizePassword(user));
   },
 };

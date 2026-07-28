@@ -14,10 +14,14 @@ export async function matchPassword(
   return await bcrypt.compare(password, hashedPassword);
 }
 
-export const sanitizePassword = (data: any) => {
+export function sanitizePassword(data: any) {
+  if (!data) {
+    return null;
+  }
+
   const obj = data.toObject();
 
   delete obj.password;
 
   return obj;
-};
+}
