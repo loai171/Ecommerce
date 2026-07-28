@@ -16,11 +16,7 @@ export async function matchPassword(
   return await bcrypt.compare(password, hashedPassword);
 }
 
-export function sanitizePassword(user: UserDocument): UserResponseDTO;
-export function sanitizePassword(user: null): null;
-export function sanitizePassword(
-  user: UserDocument | null,
-): UserResponseDTO | null;
+
 export function sanitizePassword(
   user: UserDocument | null,
 ): UserResponseDTO | null {
