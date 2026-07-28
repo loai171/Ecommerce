@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { env } from "./env.js";
 
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      `mongodb://${process.env["DB_HOST"]}:${process.env["DB_PORT"]}/${process.env["DB_NAME"]}`,
+      `mongodb://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`,
     );
     console.log("MongoDB connected successfully");
   } catch (error) {

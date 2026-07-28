@@ -19,9 +19,10 @@ export function sanitizePassword(data: any) {
     return null;
   }
 
-  const obj = data.toObject();
+  const obj = typeof data.toObject === "function" ? data.toObject() : { ...data };
 
   delete obj.password;
 
   return obj;
 }
+

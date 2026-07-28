@@ -22,7 +22,7 @@ export const userController = {
     );
   }),
 
-  list: asyncHandler(async (req: Request, res: Response) => {
+  list: asyncHandler(async (_req: Request, res: Response) => {
     const users = await userService.getAll();
     console.log(users);
     return successResponse(
@@ -34,7 +34,7 @@ export const userController = {
   }),
 
   getById: asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = req.params["id"] as string;
     const user = await userService.getById(id);
     return successResponse(
       res,
@@ -44,7 +44,7 @@ export const userController = {
     );
   }),
   remove: asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = req.params["id"] as string;
     await userService.remove(id);
     return successResponse(
       res,
@@ -55,7 +55,7 @@ export const userController = {
   }),
 
   update: asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = req.params["id"] as string;
     const input = matchedData(req) as UpdateUserDTO;
 
     const user = await userService.update(id, input);
