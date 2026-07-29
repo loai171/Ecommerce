@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import crypto from "node:crypto";
 import { hashingPassword } from "../../../utils/helpers.js";
+import Address from "./address.schema.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -48,6 +49,17 @@ userSchema.pre("save", async function () {
     const randomName = crypto.randomBytes(6).toString("hex");
 
     this.name = randomName;
+  }
+});
+
+userSchema.pre("findOneAndDelete", async function () {
+  // this.getFilter will be returned the id or email "use to find in your repository"
+  const user = await this.model.findOne(this.getFilter());
+
+  if (user) {
+    await Address.deleteMany({
+      user: user._id,
+    });
   }
 });
 

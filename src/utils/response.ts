@@ -1,29 +1,30 @@
-import { Response } from "express";
+import type { Response } from "express";
 import { StatusCodes } from "http-status-codes";
-
 
 export function successResponse(
   res: Response,
-  data: unknown,
+  data: unknown = null,
   message = "Success",
-  statusCode = StatusCodes.OK
+  statusCode = StatusCodes.OK,
 ) {
-  
   return res.status(statusCode).json({
     success: true,
     message,
-    data
+    data,
+    errors: [],
   });
 }
 
-
 export function errorResponse(
   res: Response,
+  errors: unknown[] = [],
   message: string,
-  statusCode = StatusCodes.INTERNAL_SERVER_ERROR
+  statusCode = StatusCodes.INTERNAL_SERVER_ERROR,
 ) {
   return res.status(statusCode).json({
     success: false,
-    message
+    message,
+    data: null,
+    errors,
   });
 }
