@@ -5,25 +5,26 @@ import {
   createUserValidator,
   existingId,
   updateUserValidator,
-} from "./user.validator.js";
-import { createAddressValidator } from "./address.validator.js";
+} from "./validations/user.validator.js";
+import { createAddressValidator } from "./validations/address.validator.js";
 
 const router: Router = Router();
 
 //  User Routes
 
-router.post("/", validate(createUserValidator), userController.create);
+router.post("/", createUserValidator, validate, userController.create);
 
 router.get("/", userController.list);
 
-router.get("/:id", validate(existingId), userController.getById);
+router.get("/:id", existingId, validate, userController.getById);
 
-router.delete("/:id", validate(existingId), userController.remove);
+router.delete("/:id", existingId, validate, userController.remove);
 
 router.patch(
   "/:id",
-  validate(existingId),
-  validate(updateUserValidator),
+  existingId,
+  updateUserValidator,
+  validate,
   userController.update,
 );
 
@@ -31,8 +32,9 @@ router.patch(
 
 router.post(
   "/:id/addresses",
-  validate(existingId),
-  validate(createAddressValidator),
+  existingId,
+  createAddressValidator,
+  validate,
   userController.createAddress,
 );
 
