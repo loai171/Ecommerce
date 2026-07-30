@@ -3,6 +3,10 @@ export interface JwtUserPayload {
   email: string;
 }
 
-export interface AccessTokenResponse {
-  accessToken: string;
+export type AccessTokenResponse = string;
+
+export interface RefreshTokenPayload {
+  id: string;
 }
+
+export type RefreshTokenResponse = string;

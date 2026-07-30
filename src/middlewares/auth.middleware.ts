@@ -28,10 +28,12 @@ export async function authMiddleware(
       env.JWT_SECRET,
     ) as JwtUserPayload;
 
+
     req[USER_KEY] = decoded;
 
     next();
   } catch (error) {
+    console.log("JWT VERIFY ERROR:", error);
     throw AppError.unauthorized("Invalid or expired token");
   }
 }

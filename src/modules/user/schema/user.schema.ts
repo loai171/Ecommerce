@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema(
     file: String,
   },
   {
+    timestamps: true,
     toObject: { virtuals: true },
     toJSON: { virtuals: true },
     id: false,
