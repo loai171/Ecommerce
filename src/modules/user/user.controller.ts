@@ -8,6 +8,7 @@ import { asyncHandler } from "../../utils/async-handler.js";
 import type { UpdateUserDTO } from "./dto/update-user.dto.js";
 import type { CreateUserDTO } from "./dto/create-user.dto.js";
 import type { CreateAddressDto } from "./dto/create-assress.dto.js";
+import { getUserId } from "../../utils/auth.js";
 
 export const userController = {
   create: asyncHandler(
@@ -50,6 +51,13 @@ export const userController = {
     },
   ),
 
+  profile: asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const id: string = getUserId(req);
+    const user = await userService.getById(id);
+
+    successResponse(res, user, "User returned successfully", StatusCodes.OK);
+  }),
+
   remove: asyncHandler(
     async (req: Request, res: Response): Promise<Response> => {
       const id: string = req.params["id"] as string;
@@ -80,7 +88,7 @@ export const userController = {
     },
   ),
 
-  //  Address Controller 
+  //  Address Controller
 
   createAddress: asyncHandler(
     async (req: Request, res: Response): Promise<Response> => {

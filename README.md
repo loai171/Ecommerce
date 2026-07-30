@@ -6,11 +6,15 @@ A scalable backend RESTful API for an E-Commerce platform built with **Node.js**
 
 ## 🚀 Features
 
-- 🏗️ **Modular Architecture**: Decoupled design using distinct layers (Controller, Service, Repository, Validator, Schema).
-- 🔒 **Password Hashing**: Secure password hashing with `bcrypt` using Mongoose pre-save middleware hooks.
-- ✅ **Input Validation**: Strict request body and parameter validation powered by `express-validator`.
-- ⚡ **TypeScript First**: Full type safety and modern ES syntax support.
-- 🛠️ **Centralized Error Handling**: Unified middleware managing application-wide error responses gracefully.
+- 🏗️ **Modular Architecture**: Feature-driven modular layout (Controller, Service, Repository, Validator, Schema, DTO).
+- 🔑 **Authentication & Authorization**: JWT-based authentication using **Access Tokens** & **Refresh Tokens**.
+- 🔄 **Refresh Token Rotation & Security**: 
+  - Token hashing (`SHA-256`) before database storage.
+  - Token revocation support (Single Token Revoke & Revoke All User Sessions).
+- 🔒 **Password Hashing**: Secure password hashing with `bcrypt` salt rounds.
+- ✅ **Input Validation**: Request body and parameter validation using `express-validator`.
+- ⚡ **TypeScript First**: Strict type checking and modern ES module syntax.
+- 🛠️ **Centralized Error Handling**: Custom `AppError` class with standard HTTP status codes and global error handling middleware.
 
 ---
 
@@ -19,7 +23,8 @@ A scalable backend RESTful API for an E-Commerce platform built with **Node.js**
 - **Runtime & Framework**: Node.js & Express 5
 - **Language**: TypeScript
 - **Database & ODM**: MongoDB & Mongoose
-- **Security & Validation**: bcrypt, express-validator
+- **Authentication**: JSON Web Tokens (`jsonwebtoken`)
+- **Security & Utilities**: bcrypt, ms, express-validator
 - **Development Tools**: tsx, nodemon
 
 ---
@@ -29,28 +34,38 @@ A scalable backend RESTful API for an E-Commerce platform built with **Node.js**
 ```text
 ecommerce/
 ├── src/
-│   ├── config/             # Database connection & environment variable setups
+│   ├── config/             # Database connection & env variable setups
 │   │   ├── db.ts
 │   │   └── env.ts
-│   ├── lib/                # Shared libraries & utilities
-│   ├── middlewares/        # Custom Express middlewares (Error handling, Validation)
+│   ├── constants/          # Application constants
+│   ├── middlewares/        # Custom Express middlewares (Auth, Error handling, Validation)
+│   │   ├── auth.middleware.ts
 │   │   ├── error-handler.ts
 │   │   └── validate.middleware.ts
-│   ├── modules/            # Feature modules (Domain-driven design)
+│   ├── modules/            # Feature modules
+│   │   ├── auth/           # Authentication module
+│   │   │   ├── dto/
+│   │   │   ├── repository/
+│   │   │   ├── schema/
+│   │   │   ├── services/
+│   │   │   ├── validations/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.route.ts
+│   │   │   └── auth.service.ts
 │   │   └── user/           # User module
 │   │       ├── dto/
+│   │       ├── repository/
+│   │       ├── schema/
+│   │       ├── validations/
 │   │       ├── user.controller.ts
-│   │       ├── user.repository.ts
 │   │       ├── user.route.ts
-│   │       ├── user.schema.ts
-│   │       ├── user.service.ts
-│   │       └── user.validator.ts
+│   │       └── user.service.ts
 │   ├── routes/             # Core API route registry
 │   │   └── index.ts
 │   ├── types/              # Global TypeScript interfaces & types
-│   ├── utils/              # Helper functions
+│   ├── utils/              # Helper functions & AppError
 │   ├── app.ts              # Express application setup
-│   └── server.ts           # Server entry point & DB connection
+│   └── server.ts           # Server entry point
 ├── .env.example
 ├── package.json
 └── tsconfig.json
@@ -60,14 +75,24 @@ ecommerce/
 
 ## ⚙️ Environment Variables
 
-Create a `.env` file in the root directory based on `.env.example`:
+Create a `.env` file in the root directory based on the following template:
 
 ```env
 PORT=3000
+
 DB_HOST=127.0.0.1
 DB_PORT=27017
 DB_NAME=ecommerce
+
 SALT_ROUNDS=10
+
+# JWT Settings
+JWT_SECRET=your_access_token_secret
+JWT_EXPIRES_IN=15m
+
+# Refresh Token Settings
+JWT_REFRESH_SECRET=your_refresh_token_secret
+JWT_REFRESH_EXPIRES_IN=7d
 ```
 
 ---
@@ -98,15 +123,27 @@ SALT_ROUNDS=10
 
 All API endpoints are prefixed with `/api/v1`.
 
+### 🔐 Authentication Endpoints (`/api/v1/auth`)
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Register a new user | ❌ No |
+| `POST` | `/api/v1/auth/login` | Login user & return Access + Refresh Tokens | ❌ No |
+| `POST` | `/api/v1/auth/refresh` | Refresh Access Token & rotate Refresh Token | ❌ No |
+| `POST` | `/api/v1/auth/logout` | Revoke current Refresh Token | ❌ No |
+| `POST` | `/api/v1/auth/logout-all` | Revoke all active Refresh Tokens for a user | ❌ No |
+
 ### 👤 User Endpoints (`/api/v1/users`)
 
-| Method | Endpoint | Description | Validation |
+| Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/users` | Register/Create a new user | Validates `name`, `email`, and `password` |
-| `GET` | `/api/v1/users` | Retrieve all users | None |
-| `GET` | `/api/v1/users/:id` | Fetch a user by ID | Validates MongoDB ObjectId format & existence |
-| `PATCH` | `/api/v1/users/:id` | Update user details | Validates ObjectId & updated payload |
-| `DELETE` | `/api/v1/users/:id` | Delete a user | Validates MongoDB ObjectId format & existence |
+| `POST` | `/api/v1/users` | Create a user | ❌ No |
+| `GET` | `/api/v1/users` | Retrieve all users | ❌ No |
+| `GET` | `/api/v1/users/profile` | Get current authenticated user profile | ✅ Yes |
+| `GET` | `/api/v1/users/:id` | Fetch a user by ID | ❌ No |
+| `PATCH` | `/api/v1/users/:id` | Update user details | ❌ No |
+| `DELETE` | `/api/v1/users/:id` | Delete a user | ❌ No |
+| `POST` | `/api/v1/users/address` | Add user address | ❌ No |
 
 ---
 

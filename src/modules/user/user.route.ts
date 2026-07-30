@@ -7,6 +7,7 @@ import {
   updateUserValidator,
 } from "./validations/user.validator.js";
 import { createAddressValidator } from "./validations/address.validator.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
 const router: Router = Router();
 
@@ -15,6 +16,8 @@ const router: Router = Router();
 router.post("/", createUserValidator, validate, userController.create);
 
 router.get("/", userController.list);
+
+router.get("/profile", authMiddleware, userController.profile);
 
 router.get("/:id", existingId, validate, userController.getById);
 
