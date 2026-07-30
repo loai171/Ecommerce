@@ -48,13 +48,7 @@ export const authService = {
   },
 
   async logout(refreshToken: string): Promise<void> {
-    const storedToken = await refreshTokenService
-      .validate(refreshToken)
-      .catch(() => null);
-
-    if (!storedToken) {
-      return;
-    }
+    const storedToken = await refreshTokenService.validate(refreshToken);
 
     await refreshTokenService.revoke(storedToken._id.toString());
   },
