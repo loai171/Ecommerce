@@ -55,7 +55,11 @@ export const authController = {
   }),
 
   logoutAll: asyncHandler(async (req, res) => {
-    const userId = req[USER_KEY].id;
+    const userId = req.body?.userId || req[USER_KEY]?.id;
+
+    if (!userId) {
+      return successResponse(res, null, "Logged out from all devices");
+    }
 
     await authService.logoutAll(userId);
 
