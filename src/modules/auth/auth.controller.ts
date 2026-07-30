@@ -30,39 +30,34 @@ export const authController = {
 
     const userWithTokens: AuthResponseDTO = await authService.login(input);
 
-    successResponse(
-      res,
-      userWithTokens,
-      "User logged in successfully",
-      StatusCodes.OK,
-    );
+    successResponse(res, userWithTokens, "User logged in successfully");
   }),
 
-  refresh: asyncHandler(async (req, res) => {
+  refresh: asyncHandler(async (req, res): Promise<void> => {
     const refreshToken = req.body.refreshToken;
 
     const tokens = await authService.refresh(refreshToken);
 
-    return successResponse(res, tokens, "Token refreshed");
+    successResponse(res, tokens, "Token refreshed");
   }),
 
-  logout: asyncHandler(async (req, res) => {
+  logout: asyncHandler(async (req, res): Promise<void> => {
     const refreshToken = req.body.refreshToken;
 
     await authService.logout(refreshToken);
 
-    return successResponse(res, null, "Logged out successfully");
+    successResponse(res, null, "Logged out successfully");
   }),
 
-  logoutAll: asyncHandler(async (req, res) => {
+  logoutAll: asyncHandler(async (req, res): Promise<void> => {
     const userId = req.body?.userId || req[USER_KEY]?.id;
 
     if (!userId) {
-      return successResponse(res, null, "Logged out from all devices");
+      successResponse(res, null, "Logged out from all devices");
     }
 
     await authService.logoutAll(userId);
 
-    return successResponse(res, null, "Logged out from all devices");
+    successResponse(res, null, "Logged out from all devices");
   }),
 };
