@@ -50,7 +50,7 @@ userSchema.pre("save", async function () {
   if (this.isNew && !this.name) {
     const randomName = crypto.randomBytes(6).toString("hex");
 
-    this.name = randomName;
+    this.name = `name-${randomName}`;
   }
 });
 

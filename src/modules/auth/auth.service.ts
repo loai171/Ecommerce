@@ -4,6 +4,7 @@ import { userRepository } from "../user/repository/user.repository.js";
 import { refreshTokenService } from "./services/refresh-token.service.js";
 import type { LoginDTO } from "./dto/login.dto.js";
 import type { AuthResponseDTO } from "./dto/auth-response.dto.js";
+import type { TokensResponseDTO } from "./dto/tokens-response.dto.js";
 
 export const authService = {
   async login(input: LoginDTO): Promise<AuthResponseDTO> {
@@ -23,9 +24,8 @@ export const authService = {
     };
   },
 
-  async refresh(
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async refresh(refreshToken: string): Promise<TokensResponseDTO> {
+    // make sure refresh token isnot expired 'revoked'
     const storedToken = await refreshTokenService.validate(refreshToken);
 
     const user = await userRepository.findById(storedToken.user.toString());

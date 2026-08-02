@@ -1,3 +1,5 @@
+import ms from "ms";
+
 import { hashToken } from "../../../utils/helpers.js";
 import { generateRefreshToken } from "../../../utils/jwt.js";
 import { AppError } from "../../../utils/AppError.js";
@@ -7,12 +9,9 @@ import { RefreshTokenDocument } from "../schema/refresh-token.schema.js";
 
 export const refreshTokenService = {
   async create(userId: string): Promise<string> {
-    const refreshToken = generateRefreshToken({id:userId});
+    const refreshToken = generateRefreshToken({ id: userId });
 
-    const expiresAt = new Date(
-      Date.now() + Number(env.JWT_REFRESH_EXPIRES_IN) * 1000,
-    );
-
+    const expiresAt = new Date(Date.now() + ms(env.JWT_REFRESH_EXPIRES_IN));
     await refreshTokenRepository.create({
       user: userId,
       tokenHash: hashToken(refreshToken),

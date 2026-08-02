@@ -45,26 +45,3 @@ export const loginValidator = [
       return true;
     }),
 ];
-
-export const refreshTokenValidator = [
-  body("refreshToken")
-    .notEmpty()
-    .withMessage("Refresh token is required")
-    .isString()
-    .withMessage("Refresh token must be a string")
-    .custom(async (refreshToken) => {
-      // check if refresh token is valid
-      verifyRefreshToken(refreshToken);
-
-      // check if refresh token isn't revoked
-      const storedToken = await refreshTokenService.validate(refreshToken);
-
-      const user = await userRepository.findById(storedToken.user.toString());
-
-      if (!user) {
-        throw AppError.unauthorized("User not found");
-      }
-
-      return true;
-    }),
-];
