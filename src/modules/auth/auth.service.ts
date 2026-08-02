@@ -1,9 +1,11 @@
 import { sanitizePassword } from "../../utils/helpers.js";
-import { generateAccessToken } from "../../utils/jwt.js";
+import { generateAccessToken, verifyRefreshToken } from "../../utils/jwt.js";
 import { userRepository } from "../user/repository/user.repository.js";
 import { refreshTokenService } from "./services/refresh-token.service.js";
 import type { LoginDTO } from "./dto/login.dto.js";
 import type { AuthResponseDTO } from "./dto/auth-response.dto.js";
+import type { TokensResponseDTO } from "./dto/tokens-response.dto.js";
+import { AppError } from "../../utils/AppError.js";
 
 export const authService = {
   async login(input: LoginDTO): Promise<AuthResponseDTO> {
@@ -19,18 +21,29 @@ export const authService = {
     return {
       user: sanitizePassword(user)!,
       accessToken,
-      refreshToken,
+      refreshToken: refreshToken,
     };
   },
 
-  async refresh(
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const storedToken = await refreshTokenService.validate(refreshToken);
+  async refresh(refreshToken: string): Promise<TokensResponseDTO> {
+    if (!refreshToken) {
+      throw AppError.unauthorized("Refresh token is required");
+    }
+
+    verifyRefreshToken(refreshToken);
+
+    const storedToken = await refreshTokenService.get(refreshToken);
+
+    if (!storedToken) {
+      throw AppError.unauthorized("You are logged out");
+    }
 
     const user = await userRepository.findById(storedToken.user.toString());
+    if (!user) {
+      throw AppError.unauthorized("User not found");
+    }
 
-    await refreshTokenService.revoke(storedToken._id.toString());
+    await refreshTokenService.revoke(refreshToken);
 
     const accessToken = generateAccessToken({
       id: user._id.toString(),
@@ -48,9 +61,9 @@ export const authService = {
   },
 
   async logout(refreshToken: string): Promise<void> {
-    const storedToken = await refreshTokenService.validate(refreshToken);
-
-    await refreshTokenService.revoke(storedToken._id.toString());
+    if (refreshToken) {
+      await refreshTokenService.revoke(refreshToken);
+    }
   },
 
   async logoutAll(userId: string): Promise<void> {

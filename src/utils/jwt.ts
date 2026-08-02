@@ -6,6 +6,7 @@ import type {
   RefreshTokenPayload,
   RefreshTokenResponse,
 } from "../types/jwt.types.js";
+import { AppError } from "./AppError.js";
 
 export function generateAccessToken(user: JwtUserPayload): AccessTokenResponse {
   const accessToken = jwt.sign(
@@ -39,6 +40,18 @@ export function generateRefreshToken(
   return refreshToken;
 }
 
+export function verifyAccessToken(token: string): JwtUserPayload {
+  try {
+    return jwt.verify(token, env.JWT_SECRET) as JwtUserPayload;
+  } catch {
+    throw AppError.unauthorized("Invalid or expired access token");
+  }
+}
+
 export function verifyRefreshToken(token: string) {
-  return jwt.verify(token, env.JWT_REFRESH_SECRET) as JwtUserPayload;
+  try {
+    return jwt.verify(token, env.JWT_REFRESH_SECRET) as JwtUserPayload;
+  } catch {
+    throw AppError.unauthorized("Invalid or expired refresh token");
+  }
 }

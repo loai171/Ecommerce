@@ -1,13 +1,13 @@
 // src/middlewares/auth.middleware.ts
 
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 
-import { env } from "../config/env.js";
 import { AppError } from "../utils/AppError.js";
-import { JwtUserPayload } from "../types/jwt.types.js";
 
-import { USER_KEY } from "../constants/auth.constants.js";
+import { REFRESH_TOKEN_KEY, USER_KEY } from "../constants/auth.constants.js";
+import { verifyAccessToken, verifyRefreshToken } from "../utils/jwt.js";
+
+import { refreshTokenService } from "../modules/auth/services/refresh-token.service.js";
 
 export async function authMiddleware(
   req: Request,
@@ -20,20 +20,30 @@ export async function authMiddleware(
     throw AppError.unauthorized("Authentication required");
   }
 
-  const token = authHeader.split(" ")[1];
+  const accessToken = authHeader.split(" ")[1];
 
-  try {
-    const decoded: JwtUserPayload = jwt.verify(
-      token,
-      env.JWT_SECRET,
-    ) as JwtUserPayload;
+  const refreshToken = req.cookies[REFRESH_TOKEN_KEY];
 
-
-    req[USER_KEY] = decoded;
-
-    next();
-  } catch (error) {
-    console.log("JWT VERIFY ERROR:", error);
-    throw AppError.unauthorized("Invalid or expired token");
+  if (!refreshToken) {
+    throw AppError.unauthorized("Refresh token is required");
   }
+
+  const accessPayload = verifyAccessToken(accessToken);
+
+  const refreshPayload = verifyRefreshToken(refreshToken);
+
+  // make sure refresh token isnot expired 'revoked'
+  const storedToken = await refreshTokenService.get(refreshToken);
+
+  if (!storedToken) {
+    throw AppError.unauthorized("you are lougged out");
+  }
+
+  if (accessPayload.id !== refreshPayload.id) {
+    throw AppError.unauthorized("Invalid session");
+  }
+
+  req[USER_KEY] = accessPayload;
+
+  next();
 }

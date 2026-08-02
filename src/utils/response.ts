@@ -8,6 +8,7 @@ export function successResponse(
   statusCode = StatusCodes.OK,
 ) {
   return res.status(statusCode).json({
+    statusCode,
     success: true,
     message,
     data,
@@ -22,6 +23,7 @@ export function errorResponse(
   statusCode = StatusCodes.INTERNAL_SERVER_ERROR,
 ) {
   return res.status(statusCode).json({
+    statusCode,
     success: false,
     message,
     data: null,

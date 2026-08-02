@@ -14,10 +14,16 @@ export const refreshTokenRepository = {
       },
     });
   },
-  async revoke(id: string) {
-    return RefreshToken.findByIdAndUpdate(id, {
-      revokedAt: new Date(),
-    });
+  async revoke(tokenHash: string) {
+    return RefreshToken.findOneAndUpdate(
+      { tokenHash },
+      {
+        revokedAt: new Date(),
+      },
+      {
+        new: true,
+      },
+    );
   },
 
   async revokeAllByUser(userId: string) {
