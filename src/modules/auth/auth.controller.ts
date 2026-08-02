@@ -12,6 +12,7 @@ import type { AuthResponseDTO } from "./dto/auth-response.dto.js";
 import { REFRESH_TOKEN_KEY, USER_KEY } from "../../constants/auth.constants.js";
 import { TokensResponseDTO } from "./dto/tokens-response.dto.js";
 import { refreshTokenCookieOptions } from "../../config/cookie.js";
+import { AppError } from "../../utils/AppError.js";
 
 export const authController = {
   register: asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -48,8 +49,12 @@ export const authController = {
     );
   }),
 
-  refresh: asyncHandler(async (req, res): Promise<void> => {
+  refresh: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const refreshToken = req.cookies[REFRESH_TOKEN_KEY];
+
+    if (!refreshToken) {
+      throw AppError.unauthorized("Refresh token is required");
+    }
 
     const result: TokensResponseDTO = await authService.refresh(refreshToken);
 
@@ -68,19 +73,25 @@ export const authController = {
     );
   }),
 
-  logout: asyncHandler(async (req, res): Promise<void> => {
+  logout: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const refreshToken = req.cookies[REFRESH_TOKEN_KEY];
 
     await authService.logout(refreshToken);
 
+    res.clearCookie(REFRESH_TOKEN_KEY, refreshTokenCookieOptions);
+
     successResponse(res, null, "Logged out successfully");
   }),
 
-  logoutAll: asyncHandler(async (req, res): Promise<void> => {
-    const userId = req.body?.userId || req[USER_KEY]?.id;
+  logoutAll: asyncHandler(
+    async (req: Request, res: Response): Promise<void> => {
+      const userId = req.body?.userId || req[USER_KEY]?.id;
 
-    await authService.logoutAll(userId);
+      await authService.logoutAll(userId);
 
-    successResponse(res, null, "Logged out from all devices");
-  }),
+      res.clearCookie(REFRESH_TOKEN_KEY, refreshTokenCookieOptions);
+
+      successResponse(res, null, "Logged out from all devices");
+    },
+  ),
 };

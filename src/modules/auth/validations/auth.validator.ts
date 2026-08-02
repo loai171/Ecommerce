@@ -1,10 +1,8 @@
 import { body } from "express-validator";
 
 import { matchPassword } from "../../../utils/helpers.js";
-import { verifyRefreshToken } from "../../../utils/jwt.js";
 import { AppError } from "../../../utils/AppError.js";
 import { userRepository } from "../../user/repository/user.repository.js";
-import { refreshTokenService } from "../services/refresh-token.service.js";
 
 export const loginValidator = [
   body("email")
