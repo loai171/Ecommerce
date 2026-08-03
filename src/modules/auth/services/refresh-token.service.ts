@@ -3,28 +3,31 @@ import ms, { StringValue } from "ms";
 import { hashToken } from "../../../utils/helpers.js";
 import { generateRefreshToken } from "../../../utils/jwt.js";
 import { AppError } from "../../../utils/AppError.js";
-import { refreshTokenRepository } from "../repository/refresh-token.repository.js";
 import { env } from "../../../config/env.js";
 import { RefreshTokenDocument } from "../schema/refresh-token.schema.js";
+import { RefreshTokenRepository } from "../repository/refresh-token.repository.js";
 
-export const refreshTokenService = {
-  async create(userId: string): Promise<string> {
+export class RefreshTokenService {
+  constructor(
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+  ) {}
+  create = async (userId: string): Promise<string> => {
     const refreshToken = generateRefreshToken({ id: userId });
 
     const expiresAt = new Date(
       Date.now() + ms(env.JWT_REFRESH_EXPIRES_IN as StringValue),
     );
-    await refreshTokenRepository.create({
+    await this.refreshTokenRepository.create({
       user: userId,
       tokenHash: hashToken(refreshToken),
       expiresAt,
     });
 
     return refreshToken;
-  },
+  };
 
-  async get(refreshToken: string): Promise<RefreshTokenDocument> {
-    const storedToken = await refreshTokenRepository.findByTokenHash(
+  get = async (refreshToken: string): Promise<RefreshTokenDocument> => {
+    const storedToken = await this.refreshTokenRepository.findByTokenHash(
       hashToken(refreshToken),
     );
 
@@ -33,13 +36,13 @@ export const refreshTokenService = {
     }
 
     return storedToken;
-  },
+  };
 
-  async revoke(refreshToken: string) {
-    return refreshTokenRepository.revoke(hashToken(refreshToken));
-  },
+  revoke = async (refreshToken: string) => {
+    return this.refreshTokenRepository.revoke(hashToken(refreshToken));
+  };
 
-  async revokeAllByUser(userId: string) {
-    return refreshTokenRepository.revokeAllByUser(userId);
-  },
-};
+  revokeAllByUser = async (userId: string) => {
+    return this.refreshTokenRepository.revokeAllByUser(userId);
+  };
+}

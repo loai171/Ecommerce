@@ -1,6 +1,6 @@
 import { body, param } from "express-validator";
 import { AppError } from "../../../utils/AppError.js";
-import { productRepository } from "../repository/product.repository.js";
+import { productRepository } from "../../../container/product.container.js";
 
 export const createProductValidator = [
   body("name")

@@ -7,7 +7,7 @@ import { AppError } from "../utils/AppError.js";
 import { REFRESH_TOKEN_KEY, USER_KEY } from "../constants/auth.constants.js";
 import { verifyAccessToken, verifyRefreshToken } from "../utils/jwt.js";
 
-import { refreshTokenService } from "../modules/auth/services/refresh-token.service.js";
+import { refreshTokenService } from "../container/auth.container.js";
 
 export async function authMiddleware(
   req: Request,

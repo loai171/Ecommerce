@@ -2,8 +2,8 @@ import { CreateProductDTO } from "../dto/create-product.dto.js";
 import { UpdateProductDTO } from "../dto/update-product.dto.js";
 import Product, { productDocument } from "../schema/product.schema.js";
 
-export const productRepository = {
-  create: async (
+export class ProductRepository {
+  create = async (
     author: string,
     data: CreateProductDTO,
   ): Promise<productDocument> => {
@@ -12,23 +12,23 @@ export const productRepository = {
     await product.populate("author", "name");
 
     return product;
-  },
-  get: async (id: string): Promise<productDocument> => {
+  };
+  get = async (id: string): Promise<productDocument> => {
     const product: productDocument = await Product.findById(id).populate(
       "author",
       "name",
     );
 
     return product;
-  },
-  getAll: async (userId: string): Promise<productDocument[]> => {
+  };
+  getAll = async (userId: string): Promise<productDocument[]> => {
     const products: productDocument[] = await Product.find({
       author: userId,
     }).populate("author", "name");
 
     return products;
-  },
-  update: async (
+  };
+  update = async (
     id: string,
     data: UpdateProductDTO,
   ): Promise<productDocument | null> => {
@@ -37,8 +37,8 @@ export const productRepository = {
     }).populate("author", "name");
 
     return product;
-  },
-  delete: async (
+  };
+  delete = async (
     productId: string,
     userId: string,
   ): Promise<productDocument> => {
@@ -46,10 +46,10 @@ export const productRepository = {
       _id: productId,
       author: userId,
     }).populate("author", "name");
-  },
-  deleteAll: async (userId: string) => {
+  };
+  deleteAll = async (userId: string) => {
     return Product.deleteMany({
       author: userId,
     });
-  },
-};
+  };
+}

@@ -1,11 +1,15 @@
 import RefreshToken from "../schema/refresh-token.schema.js";
 
-export const refreshTokenRepository = {
-  async create(data: { user: string; tokenHash: string; expiresAt: Date }) {
+export class RefreshTokenRepository {
+  create = async (data: {
+    user: string;
+    tokenHash: string;
+    expiresAt: Date;
+  }) => {
     return RefreshToken.create(data);
-  },
+  };
 
-  async findByTokenHash(tokenHash: string) {
+  findByTokenHash = async (tokenHash: string) => {
     return RefreshToken.findOne({
       tokenHash,
       revokedAt: null,
@@ -13,8 +17,8 @@ export const refreshTokenRepository = {
         $gt: new Date(),
       },
     });
-  },
-  async revoke(tokenHash: string) {
+  };
+  revoke = async (tokenHash: string) => {
     return RefreshToken.findOneAndUpdate(
       { tokenHash },
       {
@@ -24,9 +28,9 @@ export const refreshTokenRepository = {
         new: true,
       },
     );
-  },
+  };
 
-  async revokeAllByUser(userId: string) {
+  revokeAllByUser = async (userId: string) => {
     return RefreshToken.updateMany(
       {
         user: userId,
@@ -36,5 +40,5 @@ export const refreshTokenRepository = {
         revokedAt: new Date(),
       },
     );
-  },
-};
+  };
+}

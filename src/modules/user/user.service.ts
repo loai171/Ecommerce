@@ -3,55 +3,60 @@ import type { CreateAddressDto } from "./dto/create-assress.dto.js";
 import type { CreateUserDTO } from "./dto/create-user.dto.js";
 import type { UpdateUserDTO } from "./dto/update-user.dto.js";
 import type { UserResponseDTO } from "./dto/user-response.dto.js";
-import { addressRepository } from "./repository/address.repository.js";
-import { userRepository } from "./repository/user.repository.js";
 import type { UserDocument } from "./schema/user.schema.js";
+import { UserRepository } from "./repository/user.repository.js";
+import { AddressRepository } from "./repository/address.repository.js";
 
-export const userService = {
-  async create(input: CreateUserDTO): Promise<UserResponseDTO | null> {
-    const user: UserDocument = await userRepository.create(input);
+export class UserService {
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly addressRepository: AddressRepository,
+  ) {}
+
+  create = async (input: CreateUserDTO): Promise<UserResponseDTO | null> => {
+    const user: UserDocument = await this.userRepository.create(input);
 
     return sanitizePassword(user);
-  },
+  };
 
-  async getAll(): Promise<UserResponseDTO[]> {
-    const users: UserDocument[] = await userRepository.list();
+  getAll = async (): Promise<UserResponseDTO[]> => {
+    const users: UserDocument[] = await this.userRepository.list();
 
     return users
       .map((user) => sanitizePassword(user))
       .filter((user): user is UserResponseDTO => user !== null);
-  },
+  };
 
-  async getById(id: string): Promise<UserResponseDTO | null> {
-    const user = await userRepository.findById(id);
-
-    return sanitizePassword(user);
-  },
-
-  async remove(id: string): Promise<UserResponseDTO | null> {
-    const user = await userRepository.remove(id);
+  getById = async (id: string): Promise<UserResponseDTO | null> => {
+    const user = await this.userRepository.findById(id);
 
     return sanitizePassword(user);
-  },
+  };
 
-  async update(
+  remove = async (id: string): Promise<UserResponseDTO | null> => {
+    const user = await this.userRepository.remove(id);
+
+    return sanitizePassword(user);
+  };
+
+  update = async (
     id: string,
     input: UpdateUserDTO,
-  ): Promise<UserResponseDTO | null> {
-    const user = await userRepository.update(id, input);
+  ): Promise<UserResponseDTO | null> => {
+    const user = await this.userRepository.update(id, input);
 
     return sanitizePassword(user);
-  },
+  };
 
-  //  Address Service 
+  //  Address Service
 
-  async createAddress(
+  createAddress = async (
     userId: string,
     input: CreateAddressDto,
-  ): Promise<UserResponseDTO | null> {
-    await addressRepository.create(userId, input);
+  ): Promise<UserResponseDTO | null> => {
+    await this.addressRepository.create(userId, input);
 
-    const user = await userRepository.findById(userId);
+    const user = await this.userRepository.findById(userId);
     return sanitizePassword(user);
-  },
-};
+  };
+}

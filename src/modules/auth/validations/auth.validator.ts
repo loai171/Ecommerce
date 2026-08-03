@@ -2,7 +2,7 @@ import { body } from "express-validator";
 
 import { matchPassword } from "../../../utils/helpers.js";
 import { AppError } from "../../../utils/AppError.js";
-import { userRepository } from "../../user/repository/user.repository.js";
+import { userRepository } from "../../../container/user.container.js";
 
 export const loginValidator = [
   body("email")

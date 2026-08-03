@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { productController } from "./product.controller.js";
+import { productController } from "../../container/product.container.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import {
   createProductValidator,
@@ -18,13 +18,7 @@ router.post(
   productController.create,
 );
 router.get("/", authMiddleware, productController.getAll);
-router.get(
-  "/:id",
-  authMiddleware,
-  existingId,
-  validate,
-  productController.get,
-);
+router.get("/:id", authMiddleware, existingId, validate, productController.get);
 router.patch(
   "/:id",
   authMiddleware,
