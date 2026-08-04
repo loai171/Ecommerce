@@ -3,6 +3,9 @@ import { CreateProductDTO } from "./dto/create-product.dto.js";
 import { UpdateProductDTO } from "./dto/update-product.dto.js";
 import { productDocument } from "./schema/product.schema.js";
 import { ProductRepository } from "./repository/product.repository.js";
+import { ProductQueryDTO } from "./dto/product-query.dto.js";
+import { env } from "../../config/env.js";
+import { ProductListResponseDTO } from "./dto/product-response.dto.js";
 
 export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
@@ -18,11 +21,34 @@ export class ProductService {
 
     return product;
   };
-  getAll = async (userId: string): Promise<productDocument[]> => {
-    const products: productDocument[] =
-      await this.productRepository.getAll(userId);
+  getAll = async (
+    userId: string,
+    query: ProductQueryDTO,
+  ): Promise<ProductListResponseDTO> => {
+    const page = query.page ?? env.PAGINATION_DEFAULT_PAGE;
+    const limit = query.limit ?? env.PAGINATION_DEFAULT_LIMIT;
 
-    return products;
+    const skip = (page - 1) * limit;
+
+    const { products, total } = await this.productRepository.getAll(
+      userId,
+      skip,
+      limit,
+    );
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
   };
   get = async (productId: string, userId: string): Promise<productDocument> => {
     const product = await this.productRepository.get(productId);

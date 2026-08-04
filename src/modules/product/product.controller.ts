@@ -8,6 +8,8 @@ import { CreateProductDTO } from "./dto/create-product.dto.js";
 import { getUserId } from "../../utils/auth.js";
 import { UpdateProductDTO } from "./dto/update-product.dto.js";
 import { ProductService } from "./product.service.js";
+import { ProductQueryDTO } from "./dto/product-query.dto.js";
+import { ProductListResponseDTO } from "./dto/product-response.dto.js";
 
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -25,8 +27,12 @@ export class ProductController {
     );
   });
   getAll = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const query = matchedData(req) as ProductQueryDTO;
     const userId = getUserId(req);
-    const products = await this.productService.getAll(userId);
+    const products: ProductListResponseDTO = await this.productService.getAll(
+      userId,
+      query,
+    );
 
     successResponse(res, products, "Products returned successfully");
   });

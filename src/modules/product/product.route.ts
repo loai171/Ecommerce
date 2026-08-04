@@ -4,6 +4,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import {
   createProductValidator,
   existingId,
+  productQueryValidator,
   updateProductValidator,
 } from "./validation/product.validator.js";
 import { validate } from "../../middlewares/validate.middleware.js";
@@ -17,7 +18,13 @@ router.post(
   validate,
   productController.create,
 );
-router.get("/", authMiddleware, productController.getAll);
+router.get(
+  "/",
+  authMiddleware,
+  productQueryValidator,
+  validate,
+  productController.getAll,
+);
 router.get("/:id", authMiddleware, existingId, validate, productController.get);
 router.patch(
   "/:id",

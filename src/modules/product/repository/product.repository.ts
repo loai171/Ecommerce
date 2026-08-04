@@ -1,4 +1,5 @@
 import { CreateProductDTO } from "../dto/create-product.dto.js";
+import { ProductQueryDTO } from "../dto/product-query.dto.js";
 import { UpdateProductDTO } from "../dto/update-product.dto.js";
 import Product, { productDocument } from "../schema/product.schema.js";
 
@@ -21,12 +22,24 @@ export class ProductRepository {
 
     return product;
   };
-  getAll = async (userId: string): Promise<productDocument[]> => {
-    const products: productDocument[] = await Product.find({
-      author: userId,
-    }).populate("author", "name");
+  getAll = async (userId: string, skip: number, limit: number) => {
+    const [products, total] = await Promise.all([
+      Product.find({
+        author: userId,
+      })
+        .populate("author", "name")
+        .skip(skip)
+        .limit(limit),
 
-    return products;
+      Product.countDocuments({
+        author: userId,
+      }),
+    ]);
+
+    return {
+      products,
+      total,
+    };
   };
   update = async (
     id: string,
