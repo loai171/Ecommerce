@@ -19,6 +19,39 @@ import {
 
 const router: Router = Router();
 
+// Category Routes (Static routes defined before parameterized /:id routes)
+router
+  .route("/product-categories")
+  .post(
+    authMiddleware,
+    createProductCategoryValidator,
+    validate,
+    productCategoryController.create,
+  )
+  .get(authMiddleware, productCategoryController.getAll);
+
+router
+  .route("/product-categories/:id")
+  .get(
+    authMiddleware,
+    existingCategoryIdValidator,
+    validate,
+    productCategoryController.get,
+  )
+  .patch(
+    authMiddleware,
+    existingCategoryIdValidator,
+    updateProductCategoryValidator,
+    validate,
+    productCategoryController.update,
+  )
+  .delete(
+    authMiddleware,
+    existingCategoryIdValidator,
+    validate,
+    productCategoryController.delete,
+  );
+
 // Product Routes
 router.post(
   "/",
@@ -51,38 +84,5 @@ router.delete(
   productController.delete,
 );
 router.delete("/", authMiddleware, productController.deleteAll);
-
-// Category Routes
-router
-  .route("/product-categories")
-  .post(
-    authMiddleware,
-    createProductCategoryValidator,
-    validate,
-    productCategoryController.create,
-  )
-  .get(authMiddleware, productCategoryController.getAll);
-
-router
-  .route("/product-categories/:id")
-  .get(
-    authMiddleware,
-    existingCategoryIdValidator,
-    validate,
-    productCategoryController.get,
-  )
-  .patch(
-    authMiddleware,
-    existingCategoryIdValidator,
-    updateProductCategoryValidator,
-    validate,
-    productCategoryController.update,
-  )
-  .delete(
-    authMiddleware,
-    existingCategoryIdValidator,
-    validate,
-    productCategoryController.delete,
-  );
 
 export const productRoutes = router;
