@@ -7,29 +7,32 @@ const productSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     name: {
       type: String,
       required: true,
+      trim: true,
     },
-    price: {
-      type: Number,
-      required: true,
-    },
+
     description: {
       type: String,
+      trim: true,
     },
-    stock: {
-      type: Number,
-      default: 0,
+
+    categoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductCategory",
+      required: true,
     },
   },
   { timestamps: true },
 );
 
-export type productType = mongoose.InferSchemaType<typeof productSchema>;
-export type productDocument = mongoose.HydratedDocument<productType>;
+export type ProductType = mongoose.InferSchemaType<typeof productSchema>;
 
-const product =
-  mongoose.models?.product || mongoose.model("product", productSchema);
+export type ProductDocument = mongoose.HydratedDocument<ProductType>;
 
-export default product;
+const Product =
+  mongoose.models.Product || mongoose.model("Product", productSchema);
+
+export default Product;

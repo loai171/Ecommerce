@@ -1,7 +1,7 @@
 import { AppError } from "../../utils/AppError.js";
 import { CreateProductDTO } from "./dto/create-product.dto.js";
 import { UpdateProductDTO } from "./dto/update-product.dto.js";
-import { productDocument } from "./schema/product.schema.js";
+import { ProductDocument } from "./schema/product.schema.js";
 import { ProductRepository } from "./repository/product.repository.js";
 import { ProductQueryDTO } from "./dto/product-query.dto.js";
 import { env } from "../../config/env.js";
@@ -13,8 +13,8 @@ export class ProductService {
   create = async (
     userId: string,
     input: CreateProductDTO,
-  ): Promise<productDocument> => {
-    const product: productDocument = await this.productRepository.create(
+  ): Promise<ProductDocument> => {
+    const product: ProductDocument = await this.productRepository.create(
       userId,
       input,
     );
@@ -50,7 +50,7 @@ export class ProductService {
       },
     };
   };
-  get = async (productId: string, userId: string): Promise<productDocument> => {
+  get = async (productId: string, userId: string): Promise<ProductDocument> => {
     const product = await this.productRepository.get(productId);
     if (!product) {
       throw AppError.notFound("Product not found");
@@ -65,7 +65,7 @@ export class ProductService {
     productId: string,
     userId: string,
     data: UpdateProductDTO,
-  ): Promise<productDocument> => {
+  ): Promise<ProductDocument> => {
     const existingProduct = await this.productRepository.get(productId);
 
     if (!existingProduct) {
@@ -87,7 +87,7 @@ export class ProductService {
   delete = async (
     productId: string,
     userId: string,
-  ): Promise<productDocument> => {
+  ): Promise<ProductDocument> => {
     const product = await this.productRepository.delete(productId, userId);
 
     return product;

@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { productController } from "../../container/product.container.js";
+import {
+  productCategoryController,
+  productController,
+} from "../../container/product.container.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import {
   createProductValidator,
@@ -8,9 +11,15 @@ import {
   updateProductValidator,
 } from "./validation/product.validator.js";
 import { validate } from "../../middlewares/validate.middleware.js";
+import {
+  createProductCategoryValidator,
+  existingCategoryIdValidator,
+  updateProductCategoryValidator,
+} from "./validation/productCategory.js";
 
 const router: Router = Router();
 
+// Product Routes
 router.post(
   "/",
   authMiddleware,
@@ -42,5 +51,38 @@ router.delete(
   productController.delete,
 );
 router.delete("/", authMiddleware, productController.deleteAll);
+
+// Category Routes
+router
+  .route("/product-categories")
+  .post(
+    authMiddleware,
+    createProductCategoryValidator,
+    validate,
+    productCategoryController.create,
+  )
+  .get(authMiddleware, productCategoryController.getAll);
+
+router
+  .route("/product-categories/:id")
+  .get(
+    authMiddleware,
+    existingCategoryIdValidator,
+    validate,
+    productCategoryController.get,
+  )
+  .patch(
+    authMiddleware,
+    existingCategoryIdValidator,
+    updateProductCategoryValidator,
+    validate,
+    productCategoryController.update,
+  )
+  .delete(
+    authMiddleware,
+    existingCategoryIdValidator,
+    validate,
+    productCategoryController.delete,
+  );
 
 export const productRoutes = router;

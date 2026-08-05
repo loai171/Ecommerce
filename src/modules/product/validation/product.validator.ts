@@ -10,23 +10,37 @@ export const createProductValidator = [
     .isLength({ min: 2, max: 100 })
     .withMessage("Product name must be between 2 and 100 characters"),
 
-  body("price")
-    .notEmpty()
-    .withMessage("Product price is required")
-    .isFloat({ min: 0 })
-    .withMessage("Product price must be a positive number"),
-
   body("description")
     .optional()
     .trim()
     .isLength({ max: 1000 })
     .withMessage("Description must not exceed 1000 characters"),
-
-  body("stock")
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage("Stock must be a non-negative integer"),
 ];
+// export const createProductValidator = [
+//   body("name")
+//     .trim()
+//     .notEmpty()
+//     .withMessage("Product name is required")
+//     .isLength({ min: 2, max: 100 })
+//     .withMessage("Product name must be between 2 and 100 characters"),
+
+//   body("price")
+//     .notEmpty()
+//     .withMessage("Product price is required")
+//     .isFloat({ min: 0 })
+//     .withMessage("Product price must be a positive number"),
+
+//   body("description")
+//     .optional()
+//     .trim()
+//     .isLength({ max: 1000 })
+//     .withMessage("Description must not exceed 1000 characters"),
+
+//   body("stock")
+//     .optional()
+//     .isInt({ min: 0 })
+//     .withMessage("Stock must be a non-negative integer"),
+// ];
 export const existingId = [
   param("id")
     .notEmpty()
@@ -55,21 +69,11 @@ export const updateProductValidator = [
     .isLength({ min: 2, max: 100 })
     .withMessage("Product name must be between 2 and 100 characters"),
 
-  body("price")
-    .optional()
-    .isFloat({ min: 0 })
-    .withMessage("Product price must be a non-negative number"),
-
   body("description")
     .optional()
     .trim()
     .isLength({ max: 1000 })
     .withMessage("Description must not exceed 1000 characters"),
-
-  body("stock")
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage("Stock must be a non-negative integer"),
 ];
 export const productQueryValidator = [
   query("page")

@@ -1,21 +1,20 @@
 import { CreateProductDTO } from "../dto/create-product.dto.js";
-import { ProductQueryDTO } from "../dto/product-query.dto.js";
 import { UpdateProductDTO } from "../dto/update-product.dto.js";
-import Product, { productDocument } from "../schema/product.schema.js";
+import Product, { ProductDocument } from "../schema/product.schema.js";
 
 export class ProductRepository {
   create = async (
     author: string,
     data: CreateProductDTO,
-  ): Promise<productDocument> => {
-    const product: productDocument = await Product.create({ ...data, author });
+  ): Promise<ProductDocument> => {
+    const product: ProductDocument = await Product.create({ ...data, author });
 
     await product.populate("author", "name");
 
     return product;
   };
-  get = async (id: string): Promise<productDocument> => {
-    const product: productDocument = await Product.findById(id).populate(
+  get = async (id: string): Promise<ProductDocument> => {
+    const product: ProductDocument = await Product.findById(id).populate(
       "author",
       "name",
     );
@@ -44,7 +43,7 @@ export class ProductRepository {
   update = async (
     id: string,
     data: UpdateProductDTO,
-  ): Promise<productDocument | null> => {
+  ): Promise<ProductDocument | null> => {
     const product = await Product.findByIdAndUpdate(id, data, {
       new: true,
     }).populate("author", "name");
@@ -54,7 +53,7 @@ export class ProductRepository {
   delete = async (
     productId: string,
     userId: string,
-  ): Promise<productDocument> => {
+  ): Promise<ProductDocument> => {
     return Product.findOneAndDelete({
       _id: productId,
       author: userId,
