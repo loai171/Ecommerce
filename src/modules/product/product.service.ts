@@ -21,6 +21,7 @@ export class ProductService {
 
     return product;
   };
+
   getAll = async (
     userId: string,
     query: ProductQueryDTO,
@@ -34,6 +35,7 @@ export class ProductService {
       userId,
       skip,
       limit,
+      query.categoryId,
     );
 
     const totalPages = Math.ceil(total / limit);
@@ -50,6 +52,7 @@ export class ProductService {
       },
     };
   };
+
   get = async (productId: string, userId: string): Promise<ProductDocument> => {
     const product = await this.productRepository.get(productId);
     if (!product) {
@@ -61,6 +64,7 @@ export class ProductService {
 
     return product;
   };
+
   update = async (
     productId: string,
     userId: string,
@@ -84,14 +88,19 @@ export class ProductService {
 
     return product;
   };
+
   delete = async (
     productId: string,
     userId: string,
   ): Promise<ProductDocument> => {
     const product = await this.productRepository.delete(productId, userId);
+    if (!product) {
+      throw AppError.notFound("Product not found");
+    }
 
     return product;
   };
+
   deleteAll = async (userId: string): Promise<any> => {
     const result = await this.productRepository.deleteAll(userId);
     return result;
