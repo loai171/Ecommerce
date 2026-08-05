@@ -26,12 +26,6 @@ const productVariantSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
-
-    sku: {
-      type: String,
-      trim: true,
-      unique: true,
-    },
   },
   { timestamps: true },
 );
