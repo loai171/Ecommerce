@@ -7,6 +7,7 @@ import { ProductCategoryRepository } from "../repository/product-category.reposi
 import { ProductVariantRepository } from "../repository/product-variant.repository.js";
 import { ProductRepository } from "../repository/product.repository.js";
 import { ProductVariantDocument } from "../schema/product-variant.schema.js";
+import { ProductDocument } from "../schema/product.schema.js";
 
 export class ProductVariantService {
   constructor(
@@ -18,6 +19,7 @@ export class ProductVariantService {
   private validateAttributes = async (
     categoryId: string,
     attributesValue: Record<string, string>,
+    updatingMode = false,
   ) => {
     const category = await this.productCategoryRepository.get(categoryId);
 
@@ -27,6 +29,14 @@ export class ProductVariantService {
 
     const allowedAttributes = category.attributes;
     const givenAttributes = Object.keys(attributesValue);
+
+    for (const attr of givenAttributes) {
+      if (attributesValue[attr] === "") {
+        throw AppError.badRequest(
+          `Attribute ${attr} is not allowed to be empty`,
+        );
+      }
+    }
 
     const invalidAttributes = givenAttributes.filter(
       (attr) => !allowedAttributes.includes(attr),
@@ -38,14 +48,16 @@ export class ProductVariantService {
       );
     }
 
-    const missingAttributes = allowedAttributes.filter(
-      (attr) => !givenAttributes.includes(attr),
-    );
-
-    if (missingAttributes.length > 0) {
-      throw AppError.badRequest(
-        `Missing attributes: ${missingAttributes.join(", ")}`,
+    if (!updatingMode) {
+      const missingAttributes = allowedAttributes.filter(
+        (attr) => !givenAttributes.includes(attr),
       );
+
+      if (missingAttributes.length > 0) {
+        throw AppError.badRequest(
+          `Missing attributes: ${missingAttributes.join(", ")}`,
+        );
+      }
     }
   };
 
@@ -100,11 +112,10 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const product = await this.productRepository.get(
-      variant.productId._id.toString(),
-    );
+    const product = variant.productId as ProductDocument;
+    const productAuthorId = product.author.toString();
 
-    if (!product || product.author._id.toString() !== userId) {
+    if (productAuthorId !== userId) {
       throw AppError.forbidden(
         "You are not allowed to view this product variant",
       );
@@ -123,10 +134,11 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const productId = variant.productId._id.toString();
-    const product = await this.productRepository.get(productId);
+    const product = variant.productId as ProductDocument;
 
-    if (!product || product.author._id.toString() !== userId) {
+    const productAuthorId = product.author.toString();
+
+    if (productAuthorId !== userId) {
       throw AppError.forbidden(
         "You are not allowed to update this product variant",
       );
@@ -136,6 +148,7 @@ export class ProductVariantService {
       await this.validateAttributes(
         product.categoryId._id.toString(),
         data.attributesValue,
+        true,
       );
     }
 
@@ -160,11 +173,11 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const product = await this.productRepository.get(
-      variant.productId._id.toString(),
-    );
+    const product = variant.productId as ProductDocument;
 
-    if (!product || product.author._id.toString() !== userId) {
+    const productAuthorId = product.author.toString();
+
+    if (productAuthorId !== userId) {
       throw AppError.forbidden(
         "You are not allowed to delete this product variant",
       );

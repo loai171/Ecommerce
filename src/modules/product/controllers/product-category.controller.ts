@@ -2,7 +2,10 @@ import type { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 
-import { CreateProductCategoryDTO, UpdateProductCategoryDTO } from "../dto/create-category.dto.js";
+import {
+  CreateProductCategoryDTO,
+  UpdateProductCategoryDTO,
+} from "../dto/create-category.dto.js";
 import { ProductCategoryService } from "../service/product-category.service.js";
 import { successResponse } from "../../../utils/response.js";
 import { asyncHandler } from "../../../utils/async-handler.js";
@@ -16,7 +19,12 @@ export class ProductCategoryController {
     const data = matchedData(req) as CreateProductCategoryDTO;
     const category = await this.productCategoryService.create(data);
 
-    successResponse(res, category, "Category created successfully", StatusCodes.CREATED);
+    successResponse(
+      res,
+      category,
+      "Category created successfully",
+      StatusCodes.CREATED,
+    );
   });
 
   getAll = asyncHandler(async (_req: Request, res: Response): Promise<void> => {

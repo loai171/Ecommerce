@@ -1,4 +1,7 @@
-import { CreateProductCategoryDTO, UpdateProductCategoryDTO } from "../dto/create-category.dto.js";
+import {
+  CreateProductCategoryDTO,
+  UpdateProductCategoryDTO,
+} from "../dto/create-category.dto.js";
 import ProductCategory, {
   ProductCategoryDocument,
 } from "../schema/product-category.schema.js";

@@ -3,12 +3,16 @@ import { CreateProductDTO } from "./dto/create-product.dto.js";
 import { UpdateProductDTO } from "./dto/update-product.dto.js";
 import { ProductDocument } from "./schema/product.schema.js";
 import { ProductRepository } from "./repository/product.repository.js";
+import { ProductVariantRepository } from "./repository/product-variant.repository.js";
 import { ProductQueryDTO } from "./dto/product-query.dto.js";
 import { env } from "../../config/env.js";
 import { ProductListResponseDTO } from "./dto/product-response.dto.js";
 
 export class ProductService {
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(
+    private readonly productRepository: ProductRepository,
+    private readonly productVariantRepository: ProductVariantRepository,
+  ) {}
 
   create = async (
     userId: string,
@@ -98,11 +102,23 @@ export class ProductService {
       throw AppError.notFound("Product not found");
     }
 
+    // Cascade delete all variants belonging to this product
+    await this.productVariantRepository.deleteAllByProductId(productId);
+
     return product;
   };
 
   deleteAll = async (userId: string): Promise<any> => {
-    const result = await this.productRepository.deleteAll(userId);
-    return result;
+    const products = await this.productRepository.getAllIds(userId);
+    const productIds = products.map((p) => p._id.toString());
+
+    // Cascade delete all variants of all deleted products
+    await Promise.all(
+      productIds.map((id) =>
+        this.productVariantRepository.deleteAllByProductId(id),
+      ),
+    );
+
+    return await this.productRepository.deleteAll(userId);
   };
 }

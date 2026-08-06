@@ -26,6 +26,10 @@ export class ProductRepository {
     return product;
   };
 
+  getAllIds = async (userId: string) => {
+    return await Product.find({ author: userId }, { _id: 1 });
+  };
+
   getAll = async (
     userId: string,
     skip: number,
@@ -39,10 +43,7 @@ export class ProductRepository {
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate([
-          { path: "author", select: "name" },
-          { path: "categoryId" },
-        ])
+        .populate([{ path: "author", select: "name" }, { path: "categoryId" }])
         .skip(skip)
         .limit(limit),
 
@@ -61,11 +62,7 @@ export class ProductRepository {
   ): Promise<ProductDocument | null> => {
     const product = await Product.findByIdAndUpdate(id, data, {
       new: true,
-      runValidators: true,
-    }).populate([
-      { path: "author", select: "name" },
-      { path: "categoryId" },
-    ]);
+    }).populate([{ path: "author", select: "name" }, { path: "categoryId" }]);
 
     return product;
   };
@@ -77,10 +74,7 @@ export class ProductRepository {
     return Product.findOneAndDelete({
       _id: productId,
       author: userId,
-    }).populate([
-      { path: "author", select: "name" },
-      { path: "categoryId" },
-    ]);
+    }).populate([{ path: "author", select: "name" }, { path: "categoryId" }]);
   };
 
   deleteAll = async (userId: string) => {

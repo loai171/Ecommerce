@@ -1,16 +1,4 @@
-export interface ProductResponseDTO {
-  _id: string;
-  name: string;
-  price: number;
-  description?: string;
-  stock: number;
-  author: {
-    _id: string;
-    name: string;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { ProductDocument } from "../schema/product.schema.js";
 
 export interface PaginationResponseDTO {
   page: number;
@@ -22,6 +10,6 @@ export interface PaginationResponseDTO {
 }
 
 export interface ProductListResponseDTO {
-  products: ProductResponseDTO[];
+  products: ProductDocument[];
   pagination: PaginationResponseDTO;
 }

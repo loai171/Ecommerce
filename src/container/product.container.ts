@@ -10,7 +10,12 @@ import { ProductVariantService } from "../modules/product/service/product-varian
 
 // Product
 export const productRepository = new ProductRepository();
-export const productService = new ProductService(productRepository);
+export const productVariantRepository = new ProductVariantRepository();
+
+export const productService = new ProductService(
+  productRepository,
+  productVariantRepository,
+);
 export const productController = new ProductController(productService);
 
 // Product Category
@@ -23,7 +28,6 @@ export const productCategoryController = new ProductCategoryController(
 );
 
 // Product Variant
-export const productVariantRepository = new ProductVariantRepository();
 export const productVariantService = new ProductVariantService(
   productVariantRepository,
   productRepository,

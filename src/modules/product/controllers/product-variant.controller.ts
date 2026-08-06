@@ -2,16 +2,17 @@ import type { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { StatusCodes } from "http-status-codes";
 
-import { CreateProductVariantDTO, UpdateProductVariantDTO } from "../dto/create-variant.dto.js";
+import {
+  CreateProductVariantDTO,
+  UpdateProductVariantDTO,
+} from "../dto/create-variant.dto.js";
 import { ProductVariantService } from "../service/product-variant.service.js";
 import { successResponse } from "../../../utils/response.js";
 import { asyncHandler } from "../../../utils/async-handler.js";
 import { getUserId } from "../../../utils/auth.js";
 
 export class ProductVariantController {
-  constructor(
-    private readonly productVariantService: ProductVariantService,
-  ) {}
+  constructor(private readonly productVariantService: ProductVariantService) {}
 
   create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
@@ -35,11 +36,7 @@ export class ProductVariantController {
         userId,
       );
 
-      successResponse(
-        res,
-        variants,
-        "Product variants returned successfully",
-      );
+      successResponse(res, variants, "Product variants returned successfully");
     },
   );
 

@@ -1,5 +1,8 @@
 import { AppError } from "../../../utils/AppError.js";
-import { CreateProductCategoryDTO, UpdateProductCategoryDTO } from "../dto/create-category.dto.js";
+import {
+  CreateProductCategoryDTO,
+  UpdateProductCategoryDTO,
+} from "../dto/create-category.dto.js";
 import { ProductCategoryRepository } from "../repository/product-category.repository.js";
 import { ProductCategoryDocument } from "../schema/product-category.schema.js";
 
@@ -13,7 +16,9 @@ export class ProductCategoryService {
   ): Promise<ProductCategoryDocument> => {
     const existing = await this.productCategoryRepository.getByName(data.name);
     if (existing) {
-      throw AppError.conflict(`Category with name '${data.name}' already exists`);
+      throw AppError.conflict(
+        `Category with name '${data.name}' already exists`,
+      );
     }
 
     const category: ProductCategoryDocument =
@@ -38,9 +43,13 @@ export class ProductCategoryService {
     data: UpdateProductCategoryDTO,
   ): Promise<ProductCategoryDocument> => {
     if (data.name) {
-      const existing = await this.productCategoryRepository.getByName(data.name);
+      const existing = await this.productCategoryRepository.getByName(
+        data.name,
+      );
       if (existing && existing._id.toString() !== id) {
-        throw AppError.conflict(`Category with name '${data.name}' already exists`);
+        throw AppError.conflict(
+          `Category with name '${data.name}' already exists`,
+        );
       }
     }
 

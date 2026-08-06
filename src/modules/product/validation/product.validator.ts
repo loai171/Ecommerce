@@ -1,6 +1,9 @@
 import { body, param, query } from "express-validator";
 import { AppError } from "../../../utils/AppError.js";
-import { productCategoryRepository, productRepository } from "../../../container/product.container.js";
+import {
+  productCategoryRepository,
+  productRepository,
+} from "../../../container/product.container.js";
 
 export const createProductValidator = [
   body("name")
@@ -24,7 +27,9 @@ export const createProductValidator = [
     .custom(async (categoryId) => {
       const category = await productCategoryRepository.get(categoryId);
       if (!category) {
-        throw AppError.notFound(`Category with id ${categoryId} does not exist`);
+        throw AppError.notFound(
+          `Category with id ${categoryId} does not exist`,
+        );
       }
       return true;
     }),
@@ -69,7 +74,9 @@ export const updateProductValidator = [
     .custom(async (categoryId) => {
       const category = await productCategoryRepository.get(categoryId);
       if (!category) {
-        throw AppError.notFound(`Category with id ${categoryId} does not exist`);
+        throw AppError.notFound(
+          `Category with id ${categoryId} does not exist`,
+        );
       }
       return true;
     }),
@@ -88,8 +95,5 @@ export const productQueryValidator = [
     .withMessage("Limit must be between 1 and 100")
     .toInt(),
 
-  query("categoryId")
-    .optional()
-    .isMongoId()
-    .withMessage("Invalid category ID"),
+  query("categoryId").optional().isMongoId().withMessage("Invalid category ID"),
 ];
