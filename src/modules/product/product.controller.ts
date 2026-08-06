@@ -14,6 +14,7 @@ import { ProductListResponseDTO } from "./dto/product-response.dto.js";
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  // Create a new product
   create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const input: CreateProductDTO = matchedData(req) as CreateProductDTO;
@@ -26,6 +27,8 @@ export class ProductController {
       StatusCodes.CREATED,
     );
   });
+
+  // Get all products with pagination
   getAll = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const query = matchedData(req) as ProductQueryDTO;
     const userId = getUserId(req);
@@ -36,6 +39,8 @@ export class ProductController {
 
     successResponse(res, products, "Products returned successfully");
   });
+
+  // Get one product by id
   get = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const productId = req.params["id"] as string;
@@ -43,6 +48,8 @@ export class ProductController {
 
     successResponse(res, product, "Product returned successfully");
   });
+
+  // Update a product by id
   update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const productId = req.params["id"] as string;
@@ -51,6 +58,8 @@ export class ProductController {
 
     successResponse(res, product, "Product updated successfully");
   });
+
+  // Delete one product by id
   delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const productId = req.params["id"] as string;
@@ -58,6 +67,8 @@ export class ProductController {
 
     successResponse(res, product, "Product deleted successfully");
   });
+
+  // Delete all products for user
   deleteAll = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const userId = getUserId(req);

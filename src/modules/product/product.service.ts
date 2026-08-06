@@ -14,6 +14,7 @@ export class ProductService {
     private readonly productVariantRepository: ProductVariantRepository,
   ) {}
 
+  // Create a new product in database
   create = async (
     userId: string,
     input: CreateProductDTO,
@@ -26,6 +27,7 @@ export class ProductService {
     return product;
   };
 
+  // Get all products for user with page and limit
   getAll = async (
     userId: string,
     query: ProductQueryDTO,
@@ -57,6 +59,7 @@ export class ProductService {
     };
   };
 
+  // Get one product by id
   get = async (productId: string, userId: string): Promise<ProductDocument> => {
     const product = await this.productRepository.get(productId);
     if (!product) {
@@ -69,6 +72,7 @@ export class ProductService {
     return product;
   };
 
+  // Update product details
   update = async (
     productId: string,
     userId: string,
@@ -93,6 +97,7 @@ export class ProductService {
     return product;
   };
 
+  // Delete product and all its variants
   delete = async (
     productId: string,
     userId: string,
@@ -102,17 +107,18 @@ export class ProductService {
       throw AppError.notFound("Product not found");
     }
 
-    // Cascade delete all variants belonging to this product
+    // Delete all variants of this product
     await this.productVariantRepository.deleteAllByProductId(productId);
 
     return product;
   };
 
+  // Delete all products and all variants for user
   deleteAll = async (userId: string): Promise<any> => {
     const products = await this.productRepository.getAllIds(userId);
     const productIds = products.map((p) => p._id.toString());
 
-    // Cascade delete all variants of all deleted products
+    // Delete all variants for all user products
     await Promise.all(
       productIds.map((id) =>
         this.productVariantRepository.deleteAllByProductId(id),

@@ -7,7 +7,6 @@ import { ProductCategoryRepository } from "../repository/product-category.reposi
 import { ProductVariantRepository } from "../repository/product-variant.repository.js";
 import { ProductRepository } from "../repository/product.repository.js";
 import { ProductVariantDocument } from "../schema/product-variant.schema.js";
-import { ProductDocument } from "../schema/product.schema.js";
 
 export class ProductVariantService {
   constructor(
@@ -16,10 +15,11 @@ export class ProductVariantService {
     private readonly productCategoryRepository: ProductCategoryRepository,
   ) {}
 
+  // Check if variant attributes are valid for this category
   private validateAttributes = async (
     categoryId: string,
     attributesValue: Record<string, string>,
-    updatingMode = false,
+    isPartialUpdate = false,
   ) => {
     const category = await this.productCategoryRepository.get(categoryId);
 
@@ -30,14 +30,7 @@ export class ProductVariantService {
     const allowedAttributes = category.attributes;
     const givenAttributes = Object.keys(attributesValue);
 
-    for (const attr of givenAttributes) {
-      if (attributesValue[attr] === "") {
-        throw AppError.badRequest(
-          `Attribute ${attr} is not allowed to be empty`,
-        );
-      }
-    }
-
+    // Check for invalid attributes
     const invalidAttributes = givenAttributes.filter(
       (attr) => !allowedAttributes.includes(attr),
     );
@@ -48,7 +41,8 @@ export class ProductVariantService {
       );
     }
 
-    if (!updatingMode) {
+    // Check for missing attributes when creating
+    if (!isPartialUpdate) {
       const missingAttributes = allowedAttributes.filter(
         (attr) => !givenAttributes.includes(attr),
       );
@@ -61,6 +55,7 @@ export class ProductVariantService {
     }
   };
 
+  // Create a new variant
   create = async (
     userId: string,
     input: CreateProductVariantDTO,
@@ -85,6 +80,7 @@ export class ProductVariantService {
     return await this.productVariantRepository.create(input);
   };
 
+  // Get all variants for a product
   getAllByProductId = async (
     productId: string,
     userId: string,
@@ -103,6 +99,7 @@ export class ProductVariantService {
     return await this.productVariantRepository.getAllByProductId(productId);
   };
 
+  // Get one variant by id
   get = async (
     variantId: string,
     userId: string,
@@ -112,8 +109,9 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const product = variant.productId as ProductDocument;
-    const productAuthorId = product.author.toString();
+    const productAuthorId =
+      (variant.productId as any).author._id?.toString() ??
+      (variant.productId as any).author?.toString();
 
     if (productAuthorId !== userId) {
       throw AppError.forbidden(
@@ -124,6 +122,7 @@ export class ProductVariantService {
     return variant;
   };
 
+  // Update a variant by id
   update = async (
     variantId: string,
     userId: string,
@@ -134,9 +133,10 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const product = variant.productId as ProductDocument;
-
-    const productAuthorId = product.author.toString();
+    const populatedProduct = variant.productId as any;
+    const productAuthorId =
+      populatedProduct.author._id?.toString() ??
+      populatedProduct.author?.toString();
 
     if (productAuthorId !== userId) {
       throw AppError.forbidden(
@@ -146,7 +146,8 @@ export class ProductVariantService {
 
     if (data.attributesValue) {
       await this.validateAttributes(
-        product.categoryId._id.toString(),
+        populatedProduct.categoryId._id?.toString() ??
+          populatedProduct.categoryId?.toString(),
         data.attributesValue,
         true,
       );
@@ -164,6 +165,7 @@ export class ProductVariantService {
     return updatedVariant;
   };
 
+  // Delete a variant by id
   delete = async (
     variantId: string,
     userId: string,
@@ -173,9 +175,10 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const product = variant.productId as ProductDocument;
-
-    const productAuthorId = product.author.toString();
+    const populatedProduct = variant.productId as any;
+    const productAuthorId =
+      populatedProduct.author._id?.toString() ??
+      populatedProduct.author?.toString();
 
     if (productAuthorId !== userId) {
       throw AppError.forbidden(

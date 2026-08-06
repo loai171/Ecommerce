@@ -14,6 +14,7 @@ import { getUserId } from "../../../utils/auth.js";
 export class ProductVariantController {
   constructor(private readonly productVariantService: ProductVariantService) {}
 
+  // Create a new variant for a product
   create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const data = matchedData(req) as CreateProductVariantDTO;
@@ -27,6 +28,7 @@ export class ProductVariantController {
     );
   });
 
+  // Get all variants for one product
   getAllByProductId = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
       const userId = getUserId(req);
@@ -40,6 +42,7 @@ export class ProductVariantController {
     },
   );
 
+  // Get one variant by id
   get = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const id = req.params["id"] as string;
@@ -48,6 +51,7 @@ export class ProductVariantController {
     successResponse(res, variant, "Product variant returned successfully");
   });
 
+  // Update a variant by id
   update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const id = req.params["id"] as string;
@@ -57,6 +61,7 @@ export class ProductVariantController {
     successResponse(res, variant, "Product variant updated successfully");
   });
 
+  // Delete a variant by id
   delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const id = req.params["id"] as string;
