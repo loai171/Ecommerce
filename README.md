@@ -9,10 +9,13 @@ A scalable backend RESTful API for an E-Commerce platform built with **Node.js**
 - 🏗️ **Modular Architecture**: Feature-driven modular layout (Controller, Service, Repository, Validator, Schema, DTO).
 - 💉 **Dependency Injection (DI)**: Decoupled service layer using container-based dependency instantiation (`src/container/`).
 - 🔑 **Authentication & Authorization**: JWT-based authentication using **Access Tokens** & **Refresh Tokens**.
-- 🔄 **Refresh Token Rotation & Security**: 
+- 🔄 **Refresh Token Rotation & Security**:
   - Token hashing (`SHA-256`) before database storage.
   - Token revocation support (Single Token Revoke & Revoke All User Sessions).
-- 📦 **Product Management**: Full CRUD operations for products with query validation and pagination support.
+- 📦 **Product Management**: Full CRUD for Products, Product Categories, and Product Variants.
+  - Products are linked to a Category that defines allowed attributes.
+  - Variants hold the actual `price`, `stock`, and typed `attributesValue` per product.
+  - Cascade delete: deleting a product also deletes all its variants.
 - 👤 **User & Address Management**: User registration, profile management, and multi-address support.
 - 🔒 **Password Hashing**: Secure password hashing with `bcrypt` salt rounds.
 - ✅ **Input Validation**: Request body, params, and query validation using `express-validator`.
@@ -61,10 +64,12 @@ ecommerce/
 │   │   │   ├── auth.route.ts
 │   │   │   └── auth.service.ts
 │   │   ├── product/        # Product module
-│   │   │   ├── dto/
-│   │   │   ├── repository/
-│   │   │   ├── schema/
-│   │   │   ├── validation/
+│   │   │   ├── controllers/          # Category & Variant controllers
+│   │   │   ├── dto/                  # DTOs for Product, Category, Variant
+│   │   │   ├── repository/           # Product, Category, Variant repositories
+│   │   │   ├── schema/               # Mongoose schemas (Product, Category, Variant)
+│   │   │   ├── service/              # Category & Variant services
+│   │   │   ├── validation/           # Validators for all product resources
 │   │   │   ├── product.controller.ts
 │   │   │   ├── product.route.ts
 │   │   │   └── product.service.ts
@@ -172,15 +177,57 @@ All API endpoints are prefixed with `/api/v1`.
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/product` | Create a new product | ✅ Yes |
-| `GET` | `/api/v1/product` | Get all products (supports filtering & pagination) | ✅ Yes |
-| `GET` | `/api/v1/product/:id` | Fetch product details by ID | ✅ Yes |
-| `PATCH` | `/api/v1/product/:id` | Update product details by ID | ✅ Yes |
-| `DELETE` | `/api/v1/product/:id` | Delete a product by ID | ✅ Yes |
-| `DELETE` | `/api/v1/product` | Delete all products | ✅ Yes |
+| `GET` | `/api/v1/product` | Get all products (filtering by `categoryId` & pagination) | ✅ Yes |
+| `GET` | `/api/v1/product/:id` | Get product by ID | ✅ Yes |
+| `PATCH` | `/api/v1/product/:id` | Update product by ID | ✅ Yes |
+| `DELETE` | `/api/v1/product/:id` | Delete product by ID (cascades to variants) | ✅ Yes |
+| `DELETE` | `/api/v1/product` | Delete all products (cascades to variants) | ✅ Yes |
+
+### 🗂️ Product Category Endpoints (`/api/v1/product/product-categories`)
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/product/product-categories` | Create a new category | ✅ Yes |
+| `GET` | `/api/v1/product/product-categories` | Get all categories | ✅ Yes |
+| `GET` | `/api/v1/product/product-categories/:id` | Get category by ID | ✅ Yes |
+| `PATCH` | `/api/v1/product/product-categories/:id` | Update category by ID | ✅ Yes |
+| `DELETE` | `/api/v1/product/product-categories/:id` | Delete category by ID | ✅ Yes |
+
+### 🔀 Product Variant Endpoints (`/api/v1/product/product-variants`)
+
+> Variants represent specific combinations of attributes (e.g. `color: red, size: XL`) with their own `price` and `stock`.
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/product/product-variants` | Create a new variant | ✅ Yes |
+| `GET` | `/api/v1/product/product-variants/product/:productId` | Get all variants for a product | ✅ Yes |
+| `GET` | `/api/v1/product/product-variants/:id` | Get variant by ID | ✅ Yes |
+| `PATCH` | `/api/v1/product/product-variants/:id` | Update variant by ID | ✅ Yes |
+| `DELETE` | `/api/v1/product/product-variants/:id` | Delete variant by ID | ✅ Yes |
+
+---
+
+## 🏗️ Product Data Model
+
+```
+ProductCategory
+  └── attributes: string[]      # e.g. ["color", "size"]
+
+Product
+  ├── name: string
+  ├── description?: string
+  ├── author: ObjectId → User
+  └── categoryId: ObjectId → ProductCategory
+
+ProductVariant
+  ├── productId: ObjectId → Product
+  ├── attributesValue: Map<string, string>   # e.g. { color: "red", size: "XL" }
+  ├── price: number
+  └── stock: number
+```
 
 ---
 
 ## 📜 License
 
 This project is licensed under the [ISC License](LICENSE).
-
