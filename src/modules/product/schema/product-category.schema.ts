@@ -5,7 +5,6 @@ const productCategorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -16,6 +15,8 @@ const productCategorySchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+// Unique index on category name
+productCategorySchema.index({ name: 1 }, { unique: true });
 
 export type ProductCategoryType = mongoose.InferSchemaType<
   typeof productCategorySchema

@@ -7,7 +7,7 @@ import {
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import {
   createProductValidator,
-  existingId,
+  existingProductSlugValidator,
   productQueryValidator,
   updateProductValidator,
 } from "./validation/product.validator.js";
@@ -20,7 +20,7 @@ import {
 import {
   createProductVariantValidator,
   existingProductIdParamValidator,
-  existingVariantIdValidator,
+  existingVariantSkuValidator,
   updateProductVariantValidator,
 } from "./validation/productVariant.js";
 
@@ -79,23 +79,23 @@ router
   );
 
 router
-  .route("/product-variants/:id")
+  .route("/product-variants/:sku")
   .get(
     authMiddleware,
-    existingVariantIdValidator,
+    existingVariantSkuValidator,
     validate,
     productVariantController.get,
   )
   .patch(
     authMiddleware,
-    existingVariantIdValidator,
+    existingVariantSkuValidator,
     updateProductVariantValidator,
     validate,
     productVariantController.update,
   )
   .delete(
     authMiddleware,
-    existingVariantIdValidator,
+    existingVariantSkuValidator,
     validate,
     productVariantController.delete,
   );
@@ -115,19 +115,19 @@ router.get(
   validate,
   productController.getAll,
 );
-router.get("/:id", authMiddleware, existingId, validate, productController.get);
+router.get("/:slug", authMiddleware, existingProductSlugValidator, validate, productController.get);
 router.patch(
-  "/:id",
+  "/:slug",
   authMiddleware,
   updateProductValidator,
-  existingId,
+  existingProductSlugValidator,
   validate,
   productController.update,
 );
 router.delete(
-  "/:id",
+  "/:slug",
   authMiddleware,
-  existingId,
+  existingProductSlugValidator,
   validate,
   productController.delete,
 );

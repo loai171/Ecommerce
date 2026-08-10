@@ -108,13 +108,13 @@ export class ProductService {
     productId: string,
     userId: string,
   ): Promise<ProductDocument> => {
+    // Delete all variants of this product
+    await this.productVariantRepository.deleteAllByProductId(productId);
+
     const product = await this.productRepository.delete(productId, userId);
     if (!product) {
       throw AppError.notFound("Product not found");
     }
-
-    // Delete all variants of this product
-    await this.productVariantRepository.deleteAllByProductId(productId);
 
     return product;
   };

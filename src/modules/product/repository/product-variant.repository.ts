@@ -24,6 +24,9 @@ export class ProductVariantRepository {
   get = async (id: string): Promise<ProductVariantDocument | null> => {
     return await ProductVariant.findById(id).populate("productId");
   };
+  getBySku = async (sku: string): Promise<ProductVariantDocument | null> => {
+    return await ProductVariant.findOne({ sku });
+  };
 
   update = async (
     id: string,
@@ -35,7 +38,7 @@ export class ProductVariantRepository {
       delete updateData.attributesValue;
       const map = data.attributesValue;
       for (const key of Object.keys(map)) {
-        if (!map[key]) updateData[`attributesValue.${key}`] = map[key];
+        updateData[`attributesValue.${key}`] = map[key];
       }
     }
 

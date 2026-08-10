@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import { productVariantRepository } from "../../../container/product.container.js";
 
 export const createProductVariantValidator = [
   body("productId")
@@ -23,6 +24,15 @@ export const createProductVariantValidator = [
     .optional()
     .isInt({ min: 0 })
     .withMessage("Stock must be a non-negative integer"),
+
+  body("sku")
+    .notEmpty()
+    .withMessage("SKU is required")
+    .isString()
+    .withMessage("SKU must be a string")
+    .trim()
+    .isLength({ min: 3, max: 50 })
+    .withMessage("SKU must be between 3 and 50 characters"),
 ];
 
 export const updateProductVariantValidator = [
@@ -40,14 +50,35 @@ export const updateProductVariantValidator = [
     .optional()
     .isInt({ min: 0 })
     .withMessage("Stock must be a non-negative integer"),
+
+  body("sku")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 3, max: 50 })
+    .withMessage("SKU must be between 3 and 50 characters"),
 ];
 
-export const existingVariantIdValidator = [
-  param("id")
+export const existingVariantSkuValidator = [
+  param("sku")
     .notEmpty()
-    .withMessage("Variant ID is required")
-    .isMongoId()
-    .withMessage("Invalid variant ID"),
+    .withMessage("SKU is required")
+    .isString()
+    .withMessage("Invalid SKU")
+    .trim()
+    .custom(async (sku, { req }) => {
+      const variant = await productVariantRepository.getBySku(sku);
+
+      if (!variant) {
+        throw new Error("Product variant not found");
+      }
+
+      const params = (req.params ?? {}) as Record<string, string>;
+      params.id = variant._id.toString();
+      req.params = params;
+
+      return true;
+    }),
 ];
 
 export const existingProductIdParamValidator = [

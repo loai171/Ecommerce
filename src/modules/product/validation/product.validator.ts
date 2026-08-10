@@ -35,18 +35,23 @@ export const createProductValidator = [
     }),
 ];
 
-export const existingId = [
-  param("id")
+export const existingProductSlugValidator = [
+  param("slug")
     .notEmpty()
-    .withMessage("Id is required")
-    .isMongoId()
-    .withMessage("Invalid product id")
-    .custom(async (id) => {
-      const existingProduct = await productRepository.get(id);
+    .withMessage("Product slug is required")
+    .isString()
+    .withMessage("Invalid product slug")
+    .trim()
+    .custom(async (slug, { req }) => {
+      const product = await productRepository.getBySlug(slug);
 
-      if (!existingProduct) {
-        throw AppError.notFound(`Product with id ${id} does not exist`);
+      if (!product) {
+        throw new Error("Product not found");
       }
+
+      const params = (req.params ?? {}) as Record<string, string>;
+      params.id = product._id.toString();
+      req.params = params;
 
       return true;
     }),

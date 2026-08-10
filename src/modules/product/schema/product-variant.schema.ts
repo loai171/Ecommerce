@@ -13,6 +13,12 @@ const productVariantSchema = new mongoose.Schema(
       of: String,
       required: true,
     },
+    sku: {
+      type: String,
+      required: true,
+      trim: true,
+      uppercase: true,
+    },
 
     price: {
       type: Number,
@@ -29,6 +35,7 @@ const productVariantSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+productVariantSchema.index({ sku: 1 }, { unique: true });
 
 export type ProductVariantType = mongoose.InferSchemaType<
   typeof productVariantSchema

@@ -29,6 +29,10 @@ export class ProductRepository {
     return product;
   };
 
+  getBySlug = async (slug: string): Promise<ProductDocument | null> => {
+    return await Product.findOne({ slug });
+  };
+
   // Get only product ids for bulk delete
   getAllIds = async (userId: string): Promise<{ _id: any }[]> => {
     return await Product.find({ userId }, { _id: 1 });
@@ -48,10 +52,7 @@ export class ProductRepository {
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate([
-          { path: "userId", select: "name" },
-          { path: "categoryId" },
-        ])
+        .populate([{ path: "userId", select: "name" }, { path: "categoryId" }])
         .skip(skip)
         .limit(limit),
 
@@ -72,10 +73,7 @@ export class ProductRepository {
     const product = await Product.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
-    }).populate([
-      { path: "userId", select: "name" },
-      { path: "categoryId" },
-    ]);
+    }).populate([{ path: "userId", select: "name" }, { path: "categoryId" }]);
 
     return product;
   };
@@ -88,10 +86,7 @@ export class ProductRepository {
     return Product.findOneAndDelete({
       _id: productId,
       userId,
-    }).populate([
-      { path: "userId", select: "name" },
-      { path: "categoryId" },
-    ]);
+    }).populate([{ path: "userId", select: "name" }, { path: "categoryId" }]);
   };
 
   // Delete all products for user
