@@ -4,12 +4,12 @@ import { StatusCodes } from "http-status-codes";
 
 import { successResponse } from "../../utils/response.js";
 import { asyncHandler } from "../../utils/async-handler.js";
-import { CreateProductDTO } from "./dto/create-product.dto.js";
 import { getUserId } from "../../utils/auth.js";
 import { UpdateProductDTO } from "./dto/update-product.dto.js";
 import { ProductService } from "./product.service.js";
 import { ProductQueryDTO } from "./dto/product-query.dto.js";
 import { ProductListResponseDTO } from "./dto/product-response.dto.js";
+import { CreateProductDTO } from "./dto/create-product.dto.js";
 
 export class ProductController {
   constructor(private readonly productService: ProductService) {}

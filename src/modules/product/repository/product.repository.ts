@@ -5,14 +5,14 @@ import Product, { ProductDocument } from "../schema/product.schema.js";
 export class ProductRepository {
   // Save a new product to database
   create = async (
-    author: string,
+    userId: string,
     data: CreateProductDTO,
   ): Promise<ProductDocument> => {
-    const product: ProductDocument = await Product.create({ ...data, author });
+    const product: ProductDocument = await Product.create({ ...data, userId });
 
-    // Fill author and category info
+    // Fill user and category info
     await product.populate([
-      { path: "author", select: "name" },
+      { path: "userId", select: "name" },
       { path: "categoryId" },
     ]);
 
@@ -22,7 +22,7 @@ export class ProductRepository {
   // Find product by id
   get = async (id: string): Promise<ProductDocument | null> => {
     const product = await Product.findById(id).populate([
-      { path: "author", select: "name" },
+      { path: "userId", select: "name" },
       { path: "categoryId" },
     ]);
 
@@ -31,7 +31,7 @@ export class ProductRepository {
 
   // Get only product ids for bulk delete
   getAllIds = async (userId: string): Promise<{ _id: any }[]> => {
-    return await Product.find({ author: userId }, { _id: 1 });
+    return await Product.find({ userId }, { _id: 1 });
   };
 
   // Get all products with filter and pagination
@@ -41,7 +41,7 @@ export class ProductRepository {
     limit: number,
     categoryId?: string,
   ) => {
-    const filter: Record<string, any> = { author: userId };
+    const filter: Record<string, any> = { userId };
     if (categoryId) {
       filter["categoryId"] = categoryId;
     }
@@ -49,7 +49,7 @@ export class ProductRepository {
     const [products, total] = await Promise.all([
       Product.find(filter)
         .populate([
-          { path: "author", select: "name" },
+          { path: "userId", select: "name" },
           { path: "categoryId" },
         ])
         .skip(skip)
@@ -73,23 +73,23 @@ export class ProductRepository {
       new: true,
       runValidators: true,
     }).populate([
-      { path: "author", select: "name" },
+      { path: "userId", select: "name" },
       { path: "categoryId" },
     ]);
 
     return product;
   };
 
-  // Delete product by id and author
+  // Delete product by id and userId
   delete = async (
     productId: string,
     userId: string,
   ): Promise<ProductDocument | null> => {
     return Product.findOneAndDelete({
       _id: productId,
-      author: userId,
+      userId,
     }).populate([
-      { path: "author", select: "name" },
+      { path: "userId", select: "name" },
       { path: "categoryId" },
     ]);
   };
@@ -97,7 +97,7 @@ export class ProductRepository {
   // Delete all products for user
   deleteAll = async (userId: string) => {
     return Product.deleteMany({
-      author: userId,
+      userId,
     });
   };
 }

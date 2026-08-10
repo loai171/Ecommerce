@@ -216,7 +216,7 @@ ProductCategory
 Product
   ├── name: string
   ├── description?: string
-  ├── author: ObjectId → User
+  ├── userId: ObjectId → User
   └── categoryId: ObjectId → ProductCategory
 
 ProductVariant

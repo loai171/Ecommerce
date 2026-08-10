@@ -65,7 +65,10 @@ export class ProductService {
     if (!product) {
       throw AppError.notFound("Product not found");
     }
-    if (product.author._id.toString() !== userId) {
+    if (
+      ((product.userId as any)._id?.toString() ??
+        (product.userId as any).toString()) !== userId
+    ) {
       throw AppError.forbidden("You are not allowed to get this product");
     }
 
@@ -84,7 +87,10 @@ export class ProductService {
       throw AppError.notFound("Product not found");
     }
 
-    if (existingProduct.author._id.toString() !== userId) {
+    if (
+      ((existingProduct.userId as any)._id?.toString() ??
+        (existingProduct.userId as any).toString()) !== userId
+    ) {
       throw AppError.forbidden("You are not allowed to update this product");
     }
 

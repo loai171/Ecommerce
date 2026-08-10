@@ -66,7 +66,10 @@ export class ProductVariantService {
       throw AppError.notFound("Product not found");
     }
 
-    if (product.author._id.toString() !== userId) {
+    if (
+      ((product.userId as any)._id?.toString() ??
+        (product.userId as any).toString()) !== userId
+    ) {
       throw AppError.forbidden(
         "You are not allowed to add a variant to this product",
       );
@@ -90,7 +93,10 @@ export class ProductVariantService {
       throw AppError.notFound("Product not found");
     }
 
-    if (product.author._id.toString() !== userId) {
+    if (
+      ((product.userId as any)._id?.toString() ??
+        (product.userId as any).toString()) !== userId
+    ) {
       throw AppError.forbidden(
         "You are not allowed to view variants for this product",
       );
@@ -109,11 +115,11 @@ export class ProductVariantService {
       throw AppError.notFound("Product variant not found");
     }
 
-    const productAuthorId =
-      (variant.productId as any).author._id?.toString() ??
-      (variant.productId as any).author?.toString();
+    const productUserId =
+      (variant.productId as any).userId._id?.toString() ??
+      (variant.productId as any).userId?.toString();
 
-    if (productAuthorId !== userId) {
+    if (productUserId !== userId) {
       throw AppError.forbidden(
         "You are not allowed to view this product variant",
       );
@@ -134,11 +140,11 @@ export class ProductVariantService {
     }
 
     const populatedProduct = variant.productId as any;
-    const productAuthorId =
-      populatedProduct.author._id?.toString() ??
-      populatedProduct.author?.toString();
+    const productUserId =
+      populatedProduct.userId._id?.toString() ??
+      populatedProduct.userId?.toString();
 
-    if (productAuthorId !== userId) {
+    if (productUserId !== userId) {
       throw AppError.forbidden(
         "You are not allowed to update this product variant",
       );
@@ -176,11 +182,11 @@ export class ProductVariantService {
     }
 
     const populatedProduct = variant.productId as any;
-    const productAuthorId =
-      populatedProduct.author._id?.toString() ??
-      populatedProduct.author?.toString();
+    const productUserId =
+      populatedProduct.userId._id?.toString() ??
+      populatedProduct.userId?.toString();
 
-    if (productAuthorId !== userId) {
+    if (productUserId !== userId) {
       throw AppError.forbidden(
         "You are not allowed to delete this product variant",
       );
