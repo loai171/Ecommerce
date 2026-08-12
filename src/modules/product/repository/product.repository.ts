@@ -30,7 +30,10 @@ export class ProductRepository {
   };
 
   getBySlug = async (slug: string): Promise<ProductDocument | null> => {
-    return await Product.findOne({ slug });
+    return await Product.findOne({ slug }).populate([
+      { path: "userId", select: "name" },
+      { path: "categoryId" },
+    ]);
   };
 
   // Get only product ids for bulk delete

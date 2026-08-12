@@ -25,7 +25,7 @@ export class ProductVariantRepository {
     return await ProductVariant.findById(id).populate("productId");
   };
   getBySku = async (sku: string): Promise<ProductVariantDocument | null> => {
-    return await ProductVariant.findOne({ sku });
+    return await ProductVariant.findOne({ sku }).populate("productId");
   };
 
   update = async (
