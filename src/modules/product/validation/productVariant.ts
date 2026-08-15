@@ -1,7 +1,29 @@
 import { body, param } from "express-validator";
-import { productVariantRepository } from "../../../container/product.container.js";
+import {
+  productRepository,
+  productVariantRepository,
+} from "../../../container/product.container.js";
+import { AppError } from "../../../utils/AppError.js";
 
 export const createProductVariantValidator = [
+  body("productSlug")
+    .notEmpty()
+    .withMessage("Product slug is required")
+    .isString()
+    .withMessage("Product slug must be a string")
+    .trim()
+    .custom(async (slug, { req }) => {
+      const product = await productRepository.getBySlug(slug);
+
+      if (!product) {
+        throw AppError.notFound("Product not found");
+      }
+
+      req.body.productId = product._id.toString();
+
+      return true;
+    }),
+
   body("productId")
     .notEmpty()
     .withMessage("Product ID is required")
