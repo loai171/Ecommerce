@@ -14,8 +14,13 @@ A scalable backend RESTful API for an E-Commerce platform built with **Node.js**
   - Token revocation support (Single Token Revoke & Revoke All User Sessions).
 - 📦 **Product Management**: Full CRUD for Products, Product Categories, and Product Variants.
   - Products are linked to a Category that defines allowed attributes.
-  - Variants hold the actual `price`, `stock`, and typed `attributesValue` per product.
+  - Variants hold the actual `price`, `stock`, `sku`, and typed `attributesValue` per product.
   - Cascade delete: deleting a product also deletes all its variants.
+- 🛒 **Shopping Cart Management**:
+  - User-specific persistent cart (One cart per user).
+  - Add items using variant `variantSku` with stock validation.
+  - Update item quantities dynamically by SKU.
+  - Remove specific items by SKU or clear the entire cart.
 - 👤 **User & Address Management**: User registration, profile management, and multi-address support.
 - 🔒 **Password Hashing**: Secure password hashing with `bcrypt` salt rounds.
 - ✅ **Input Validation**: Request body, params, and query validation using `express-validator`.
@@ -47,6 +52,7 @@ ecommerce/
 │   ├── constants/          # Application constants
 │   ├── container/          # Dependency Injection (DI) containers
 │   │   ├── auth.container.ts
+│   │   ├── cart.container.ts
 │   │   ├── product.container.ts
 │   │   └── user.container.ts
 │   ├── middlewares/        # Custom Express middlewares (Auth, Error handling, Validation)
@@ -63,6 +69,14 @@ ecommerce/
 │   │   │   ├── auth.controller.ts
 │   │   │   ├── auth.route.ts
 │   │   │   └── auth.service.ts
+│   │   ├── cart/           # Shopping Cart module
+│   │   │   ├── dto/
+│   │   │   ├── repository/
+│   │   │   ├── schema/
+│   │   │   ├── validations/
+│   │   │   ├── cart.controller.ts
+│   │   │   ├── cart.route.ts
+│   │   │   └── cart.service.ts
 │   │   ├── product/        # Product module
 │   │   │   ├── controllers/          # Category & Variant controllers
 │   │   │   ├── dto/                  # DTOs for Product, Category, Variant
@@ -178,9 +192,9 @@ All API endpoints are prefixed with `/api/v1`.
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/product` | Create a new product | ✅ Yes |
 | `GET` | `/api/v1/product` | Get all products (filtering by `categoryId` & pagination) | ✅ Yes |
-| `GET` | `/api/v1/product/:id` | Get product by ID | ✅ Yes |
-| `PATCH` | `/api/v1/product/:id` | Update product by ID | ✅ Yes |
-| `DELETE` | `/api/v1/product/:id` | Delete product by ID (cascades to variants) | ✅ Yes |
+| `GET` | `/api/v1/product/:slug` | Get product by slug | ✅ Yes |
+| `PATCH` | `/api/v1/product/:slug` | Update product by slug | ✅ Yes |
+| `DELETE` | `/api/v1/product/:slug` | Delete product by slug (cascades to variants) | ✅ Yes |
 | `DELETE` | `/api/v1/product` | Delete all products (cascades to variants) | ✅ Yes |
 
 ### 🗂️ Product Category Endpoints (`/api/v1/product/product-categories`)
@@ -195,35 +209,53 @@ All API endpoints are prefixed with `/api/v1`.
 
 ### 🔀 Product Variant Endpoints (`/api/v1/product/product-variants`)
 
-> Variants represent specific combinations of attributes (e.g. `color: red, size: XL`) with their own `price` and `stock`.
+> Variants represent specific combinations of attributes (e.g. `color: red, size: XL`) with their own `price`, `stock`, and `sku`.
 
 | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/product/product-variants` | Create a new variant | ✅ Yes |
 | `GET` | `/api/v1/product/product-variants/product/:productId` | Get all variants for a product | ✅ Yes |
-| `GET` | `/api/v1/product/product-variants/:id` | Get variant by ID | ✅ Yes |
-| `PATCH` | `/api/v1/product/product-variants/:id` | Update variant by ID | ✅ Yes |
-| `DELETE` | `/api/v1/product/product-variants/:id` | Delete variant by ID | ✅ Yes |
+| `GET` | `/api/v1/product/product-variants/:sku` | Get variant by SKU | ✅ Yes |
+| `PATCH` | `/api/v1/product/product-variants/:sku` | Update variant by SKU | ✅ Yes |
+| `DELETE` | `/api/v1/product/product-variants/:sku` | Delete variant by SKU | ✅ Yes |
+
+### 🛒 Cart Endpoints (`/api/v1/cart`)
+
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/cart` | Get current user's shopping cart | ✅ Yes |
+| `DELETE` | `/api/v1/cart` | Clear all items from current user's cart | ✅ Yes |
+| `POST` | `/api/v1/cart/items` | Add item to cart (`variantSku`, optional `quantity`) | ✅ Yes |
+| `PATCH` | `/api/v1/cart/items/:sku` | Update cart item quantity by variant SKU (`quantity`) | ✅ Yes |
+| `DELETE` | `/api/v1/cart/items/:sku` | Remove item from cart by variant SKU | ✅ Yes |
 
 ---
 
-## 🏗️ Product Data Model
+## 🏗️ Data Models Architecture
 
-```
+```text
 ProductCategory
-  └── attributes: string[]      # e.g. ["color", "size"]
+  └── attributes: string[]                   # e.g. ["color", "size"]
 
 Product
   ├── name: string
+  ├── slug: string
   ├── description?: string
   ├── userId: ObjectId → User
   └── categoryId: ObjectId → ProductCategory
 
 ProductVariant
   ├── productId: ObjectId → Product
+  ├── sku: string                            # Unique SKU per variant
   ├── attributesValue: Map<string, string>   # e.g. { color: "red", size: "XL" }
   ├── price: number
   └── stock: number
+
+Cart
+  ├── userId: ObjectId → User (Unique Index)
+  └── items: Array
+      ├── variantId: ObjectId → ProductVariant
+      └── quantity: number (min: 1)
 ```
 
 ---
