@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import crypto from "node:crypto";
 import { hashingPassword } from "../../../utils/helpers.js";
 import Address from "./address.schema.js";
+import Cart from "../../cart/schema/cart.schema.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -32,6 +33,12 @@ const userSchema = new mongoose.Schema(
     id: false,
   },
 );
+userSchema.post("save", async function (user) {
+  await Cart.create({
+    userId: user._id,
+    items: [],
+  });
+});
 
 userSchema.virtual("addresses", {
   ref: "Address",

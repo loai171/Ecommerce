@@ -17,7 +17,7 @@ router
 
 router
   .route("/items")
-  .post(authMiddleware, addCartItemValidator, validate, cartController.addItem);
+  .post(authMiddleware, addCartItemValidator, validate, cartController.update);
 
 router
   .route("/items/:sku")
@@ -35,4 +35,3 @@ router
   );
 
 export const cartRoutes = router;
-

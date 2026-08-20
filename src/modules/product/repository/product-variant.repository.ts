@@ -50,6 +50,13 @@ export class ProductVariantRepository {
       },
     ).populate("productId");
   };
+  decreaseStock = async (variantId: string, quantity: number) => {
+    return await ProductVariant.findOneAndUpdate(
+      { _id: variantId },
+      { $inc: { stock: -quantity } },
+      { returnDocument: "after" },
+    );
+  };
 
   delete = async (id: string): Promise<ProductVariantDocument | null> => {
     return await ProductVariant.findByIdAndDelete(id).populate("productId");

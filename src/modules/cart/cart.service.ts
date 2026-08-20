@@ -18,32 +18,31 @@ export class CartService {
     private readonly productVariantRepository: ProductVariantRepository,
   ) {}
 
-  addItem = async (data: AddCartItemDTO, userId: string) => {
+  update = async (data: AddCartItemDTO, userId: string) => {
     const variant = await this.productVariantRepository.get(data.variantId);
+
     if (!variant) {
       throw AppError.notFound("Product variant not found");
     }
 
-    const requestedQuantity = data.quantity ?? 1;
-    const existingCart = await this.cartRepository.getCart(userId);
-    let currentInCart = 0;
+    const quantity = data.quantity ?? 1;
 
-    if (existingCart) {
-      const existingItem = existingCart.items.find(
-        (item) => getVariantIdString(item.variantId) === data.variantId,
-      );
-      if (existingItem) {
-        currentInCart = existingItem.quantity;
-      }
-    }
+    const cart = await this.cartRepository.getCart(userId);
 
-    if (currentInCart + requestedQuantity > variant.stock) {
+    const item = cart?.items.find(
+      (item) => getVariantIdString(item.variantId) === data.variantId,
+    );
+
+    const currentQuantity = item?.quantity ?? 0;
+    const newQuantity = currentQuantity + quantity;
+
+    if (newQuantity > variant.stock) {
       throw AppError.badRequest(
-        `Requested quantity (${currentInCart + requestedQuantity}) exceeds available stock (${variant.stock})`,
+        `Requested quantity (${newQuantity}) exceeds available stock (${variant.stock})`,
       );
     }
 
-    return await this.cartRepository.addItem(data, userId);
+    return await this.cartRepository.update(data, userId);
   };
 
   updateItemQuantity = async (

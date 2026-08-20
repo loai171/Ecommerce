@@ -10,44 +10,27 @@ const getVariantIdString = (variantId): string => {
 };
 
 export class CartRepository {
-  addItem = async (
+  update = async (
     data: AddCartItemDTO,
     userId: string,
   ): Promise<CartDocument> => {
-    let cart = await this.getCart(userId);
-
-    const quantity = data.quantity ?? 1;
-
-    if (!cart) {
-      const newCart = await Cart.create({
-        userId,
-        items: [
-          {
-            variantId: data.variantId,
-            quantity,
-          },
-        ],
-      });
-
-      return await newCart.populate("items.variantId");
-    }
-
-    const item = cart.items.find(
-      (item) => getVariantIdString(item.variantId) === data.variantId,
+    const cart = await Cart.findOne({ userId });
+    const item = cart!.items.find(
+      (item) => item.variantId.toString() === data.variantId,
     );
 
     if (item) {
-      item.quantity += quantity;
+      item.quantity += data.quantity ?? 1;
     } else {
-      cart.items.push({
+      cart!.items.push({
         variantId: data.variantId,
-        quantity,
+        quantity: data.quantity ?? 1,
       });
     }
 
-    await cart.save();
+    await cart!.save();
 
-    return await cart.populate("items.variantId");
+    return cart!.populate("items.variantId");
   };
 
   getCart = async (userId: string): Promise<CartDocument | null> => {
@@ -107,4 +90,3 @@ export class CartRepository {
     return await cart.populate("items.variantId");
   };
 }
-

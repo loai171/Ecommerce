@@ -8,10 +8,11 @@ import { successResponse } from "../../utils/response.js";
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  addItem = async (req: Request, res: Response): Promise<void> => {
+  update = async (req: Request, res: Response): Promise<void> => {
     const userId = getUserId(req);
     const data: AddCartItemDTO = matchedData(req) as AddCartItemDTO;
-    const cart = await this.cartService.addItem(data, userId);
+    console.log("data", data);
+    const cart = await this.cartService.update(data, userId);
 
     successResponse(res, cart, "Item added to cart successfully");
   };
